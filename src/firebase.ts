@@ -16,4 +16,5 @@ const auth = getAuth(app);
     console.log('user state changed:', user);
 });*/
 
-export {app, auth};
+export {auth};
+export default app;
