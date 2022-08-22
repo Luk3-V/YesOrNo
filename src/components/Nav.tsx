@@ -9,6 +9,7 @@ const NavWrapper = styled.div`
     border-bottom: 2px solid black;
     z-index: 2;
     padding: 0 20px;
+    background-color: white;
 `;
 
 const NavDiv = styled.div`
