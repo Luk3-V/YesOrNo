@@ -51,7 +51,7 @@ export default function Nav(props: Props) {
             <NavDiv>
                 <button onClick={() => navigate('/')} className="text-2xl font-medium text-primary">Pollify</button>
                 <div>
-                    {profile.uid ? <>
+                    {status === 'success' ? <>
                         <Button onClick={() => {}}>Create Poll</Button>
                         <Button onClick={() => navigate('/profile')}>{profile.name}</Button>
                         <Button onClick={handleLogOut}>Logout</Button>

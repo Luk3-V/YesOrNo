@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from 'firebase/auth'
+import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore';
 
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 
 export interface UserState {
   profile: {
     uid: string | null,
-    name: string | null,
+    name: string | null | undefined,
     email: string | null,
     bio: string | null,
     polls: number,
@@ -31,6 +32,21 @@ const initialState: UserState = {
   error: undefined
 }
 
+export const setProfile = createAsyncThunk('user/setProfile', async (newProfile: typeof initialState.profile, { rejectWithValue }) => {
+  const docRef = doc(db, "users", newProfile.uid as string );
+  const result = setDoc(docRef, newProfile)
+    .then(() => {
+        console.log("Document has been added successfully");
+        return newProfile;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to edit profile");
+    });
+  return result;
+});
+
+// TODO DONT MAKE ACCOUNT IF FAIL TO ADD DATABASE
 export const userSignUp = createAsyncThunk('user/signup', async ({email, password, confirmPassword}: {email: string, password: string, confirmPassword: string}, { rejectWithValue } ) => {
   if(password !== confirmPassword)
     return rejectWithValue('Passwords do not match');
@@ -41,6 +57,24 @@ export const userSignUp = createAsyncThunk('user/signup', async ({email, passwor
         uid: cred.user.uid,
         email: cred.user.email,
       };
+    })
+    .then((user) => {
+      const docRef = doc(db, "users", user.uid as string );
+      let profile = {...initialState.profile};
+      profile.uid = user.uid;
+      profile.email = user.email;
+      profile.name = user.email?.substring(0, user.email.indexOf('@'));
+      // TODO ADD CHECK IF NAME IS TAKEN
+      const profileResult = setDoc(docRef, profile)
+        .then(() => {
+            console.log("Document has been added successfully");
+            return user;
+        })
+        .catch(error => {
+            console.log(error);
+            return rejectWithValue("Unable to create profile");
+        });
+      return profileResult;
     })
     .catch((err) => {
       switch(err.code) {
@@ -133,9 +167,10 @@ const userSlice = createSlice({
       state.error = action.payload as string;
     })
     .addCase(userSignOut.fulfilled, (state, action) => {
-      state.profile = initialState.profile;
-      state.status = 'idle';
-      state.error = undefined;
+      state = {...initialState};
+    })
+    .addCase(setProfile.fulfilled, (state, action) => {
+      state.profile = action.payload;
     })
   }
 })
