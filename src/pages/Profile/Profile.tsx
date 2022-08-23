@@ -4,7 +4,7 @@ import Card from "../../components/Card";
 import { getProfile } from "../../store/UserSlice";
 
 export default function Profile() {
-    const profile = useSelector(getProfile)
+    const profile = useSelector(getProfile);
 
     return (
         <div className="w-full">
