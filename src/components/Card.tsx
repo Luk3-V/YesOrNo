@@ -5,7 +5,7 @@ type Props = {
 
 export default function Card(props: Props) {
     return (
-        <div className={"bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 " + props.className}>
+        <div className={"bg-white shadow-md rounded-md px-8 pt-6 pb-8 mb-4 " + props.className}>
             {props.children}
         </div>
     );

@@ -1,18 +1,16 @@
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useCallback, useEffect, useInsertionEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 import Input from "../../components/Input";
 import { AppDispatch } from "../../store/store";
-import { getError, getProfile, getStatus, resetError, userSignUp } from "../../store/UserSlice";
+import { getError, getProfile, getStatus, googleSignIn, resetError, userSignUp } from "../../store/UserSlice";
+import { debounce } from 'lodash';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
-interface Props {  
-   
-}
-
-export default function SignUp(props:Props) {
-    const navigate = useNavigate();
+export default function SignUp() {
     const dispatch = useDispatch<AppDispatch>();
     const status = useSelector(getStatus);
     const error = useSelector(getError);
@@ -22,16 +20,11 @@ export default function SignUp(props:Props) {
         if(status === 'fail')
             dispatch(resetError());
     }, []);
-    // on update
-    useEffect(() => {
-        if(status === 'success')
-            navigate('/');
-    }, [status]);
 
-    const handleSignUp = (e:React.SyntheticEvent) => {
+    const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
-          form: HTMLFormElement & {
+          form: {
             email: { value: string },
             password: { value:string },
             confirmPassword: { value:string }
@@ -46,8 +39,13 @@ export default function SignUp(props:Props) {
         dispatch(userSignUp(info));
     }
 
+    const handleGoogleSignUp = (e: Event) => {
+        e.preventDefault();
+        dispatch(googleSignIn());
+    }
+
     return (
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-sm">
             <h1 className="text-2xl font-bold mb-2">Create an Account</h1>
             <Card>
                 <form>
@@ -67,11 +65,17 @@ export default function SignUp(props:Props) {
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
                             Confirm Password
                         </label>
-                        <Input id="confirmPassword" type="confirmPassword" placeholder="************" />
+                        <Input id="confirmPassword" type="password" placeholder="************" />
                     </div>
                     <div className="flex flex-col items-center justify-center">
-                        <Button className="w-full mb-2" disabled={status === 'loading'} onClick={handleSignUp}>
+                        <Button className="w-full mb-2" disabled={status === 'loading'} onClick={handleSignUp} >
                             Sign Up
+                        </Button>
+                        <Button className="w-full mb-2" disabled={status === 'loading'} onClick={handleGoogleSignUp} type="outline">
+                            <div className="inline-flex align-middle items-center">
+                                <img src={require("../../assets/google-icon.png")} alt="" className="w-5 h-5 mr-3"/>
+                                Sign Up with Google
+                            </div>
                         </Button>
                         <span className="text-sm">
                             Already have an account?
@@ -85,5 +89,4 @@ export default function SignUp(props:Props) {
             </Card>
         </div>
     );
-    //"w-full mb-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:shadow-outline"
 }

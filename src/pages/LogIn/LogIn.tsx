@@ -23,16 +23,11 @@ export default function LogIn(props:Props) {
         if(status === 'fail')
             dispatch(resetError());
     }, []);
-    // on update
-    useEffect(() => {
-        if(status === 'success')
-            navigate('/');
-    }, [status]);
 
-    const handleLogIn = (e:React.SyntheticEvent) => {
+    const handleLogIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
-          form: HTMLFormElement & {
+          form: {
             email: { value: string },
             password: { value:string },
           }
@@ -42,7 +37,12 @@ export default function LogIn(props:Props) {
             password: target.form.password.value,
         };
 
-        dispatch(userSignIn(info));     
+        await dispatch(userSignIn(info));
+        navigate('/');
+    }
+
+    const handleGoogleLogIn = () => {
+        
     }
 
     return (
@@ -65,6 +65,12 @@ export default function LogIn(props:Props) {
                     <div className="flex flex-col items-center justify-center">
                         <Button onClick={handleLogIn} className="w-full mb-2" disabled={status === 'loading'}>
                             Log In
+                        </Button>
+                        <Button className="w-full mb-2" disabled={status === 'loading'} onClick={handleGoogleLogIn} type="outline">
+                            <div className="inline-flex align-middle items-center">
+                                <img src={require("../../assets/google-icon.png")} alt="" className="w-5 h-5 mr-3"/>
+                                Log In with Google
+                            </div>
                         </Button>
                         <span className="text-sm">
                             Dont have an account?

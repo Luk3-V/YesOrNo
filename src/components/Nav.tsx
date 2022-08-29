@@ -23,14 +23,11 @@ const NavDiv = styled.div`
     display: flex;
     justify-content: space-between;
     div button {
-        margin-left: 1.2rem;
+        margin-left: 1rem;
     }
 `;
 
-interface Props {  
-    
-}
-export default function Nav(props: Props) {
+export default function Nav() {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const profile = useSelector(getProfile);
@@ -56,7 +53,7 @@ export default function Nav(props: Props) {
                         <Button onClick={() => navigate('/profile')}>{profile.name}</Button>
                         <Button onClick={handleLogOut}>Logout</Button>
                     </> : <>
-                        <button onClick={() => navigate('/login')} className="font-semibold text-blue-500 hover:text-blue-700">Log In</button>
+                        <Button onClick={() => navigate('/login')} type="clear">Log In</Button>
                         <Button onClick={() => navigate('/signup')}>Sign Up</Button>
                     </>}
                 </div>
