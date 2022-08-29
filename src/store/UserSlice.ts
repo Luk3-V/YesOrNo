@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn } from './UserThunks'
+import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile } from './UserThunks'
 
 export interface UserState {
   profile: {
@@ -23,7 +23,7 @@ export const initialState: UserState = {
     name: 'guest',
     email: null,
     bio: null,
-    image: 'https://st3.depositphotos.com/13402246/34252/v/600/depositphotos_342529278-stock-illustration-hand-drawn-basic-silhouette-avatar.jpg',
+    image: 'https://firebasestorage.googleapis.com/v0/b/luk3v-pollify.appspot.com/o/default.png?alt=media&token=6139a68d-387a-4401-be21-ebafe196613b',
     polls: 0,
     followers: 0,
     following: 0
@@ -37,9 +37,6 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setName: (state, action) => {
-      state.profile.name = action.payload.name;
-    },
     resetError: (state) => {
       state.status = 'idle';
       state.error = undefined;
@@ -48,12 +45,14 @@ const userSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(userSignUp.pending, (state, action) => {
       state.status = 'loading';
+      console.log('loading');
     })
     .addCase(userSignUp.fulfilled, (state, action) => {
       state.status = 'success';
       state.error = undefined;
       state.profile = action.payload;
       state.isNewUser = true;
+      console.log(action.payload);
     })
     .addCase(userSignUp.rejected, (state, action) => {
       state.status = 'fail';
@@ -92,12 +91,24 @@ const userSlice = createSlice({
     .addCase(updateUserProfile.fulfilled, (state, action) => {
       state.profile = action.payload;
     })
+    .addCase(loadUserProfile.pending, (state, action) => {
+      state.status = 'loading';
+    })
+    .addCase(loadUserProfile.fulfilled, (state, action) => {
+      state.status = 'success';
+      state.error = undefined;
+      state.profile = action.payload as typeof initialState.profile;
+    })
+    .addCase(loadUserProfile.rejected, (state, action) => {
+      state.status = 'fail';
+      state.error = action.payload as string;
+    })
   }
 })
 
 // Action creators are generated for each case reducer function
-export { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn };
-export const { setName, resetError } = userSlice.actions;
+export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn };
+export const { resetError } = userSlice.actions;
 export const getProfile = (state: any) => state.user.profile;
 export const getStatus = (state: any) => state.user.status;
 export const getError = (state: any) => state.user.error;

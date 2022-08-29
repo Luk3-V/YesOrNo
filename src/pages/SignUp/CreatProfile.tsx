@@ -90,7 +90,7 @@ export default function CreatProfile() {
                             Profile Image
                         </label>
                         <div className="flex items-end relative">
-                            <img src={image ? URL.createObjectURL(image) : "https://st3.depositphotos.com/13402246/34252/v/600/depositphotos_342529278-stock-illustration-hand-drawn-basic-silhouette-avatar.jpg"} 
+                            <img src={image ? URL.createObjectURL(image) : profile.image} 
                                 alt="profile image" className="w-16 h-16 rounded-full mr-3"
                             />
                             <Input id="image" type="file" rows="3" onChange={handleImageChange}/>

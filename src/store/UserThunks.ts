@@ -138,6 +138,10 @@ export const updateUserProfile = createAsyncThunk('user/updateProfile', async (n
     return result;
 });
 
+export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: string, { rejectWithValue }) =>{
+  return await getUserProfile(uid, rejectWithValue);
+});
+
 // -----------------------------------
 
 async function addUserProfile(user: {uid: string, email: string, image?: string}, rejectWithValue: Function) {

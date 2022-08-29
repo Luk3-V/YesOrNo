@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { AppDispatch } from "../../store/store";
-import { getError, getStatus, resetError, userSignIn } from "../../store/UserSlice";
+import { getError, getStatus, googleSignIn, resetError, userSignIn } from "../../store/UserSlice";
 import { useNavigate } from 'react-router-dom';
 import Card from "../../components/Card";
 
@@ -41,8 +41,10 @@ export default function LogIn(props:Props) {
         navigate('/');
     }
 
-    const handleGoogleLogIn = () => {
-        
+    const handleGoogleLogIn = async (e: Event) => {
+        e.preventDefault();
+        await dispatch(googleSignIn());
+        navigate('/');
     }
 
     return (

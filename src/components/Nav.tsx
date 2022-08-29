@@ -46,7 +46,7 @@ export default function Nav() {
     return (
         <NavWrapper className="shadow-md">
             <NavDiv>
-                <button onClick={() => navigate('/')} className="text-2xl font-medium text-primary">Pollify</button>
+                <button onClick={() => navigate('/')} className="text-2xl font-medium text-primary">something</button>
                 <div>
                     {status === 'success' ? <>
                         <Button onClick={() => {}}>Create Poll</Button>
