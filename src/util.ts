@@ -23,3 +23,29 @@ export async function uploadProfileImg(file: File, uid: string, setLoading: Func
 
     return fileURL;
 }
+
+export async function getUserID(username: string) {
+    const usernameRef = doc(db, "usernames", username);
+    const result = await getDoc(usernameRef)
+        .then((doc) => {
+            return doc.data()?.uid;
+        })
+        .catch(error => {
+            console.log(error);
+            return null;
+        });
+    return result;
+}
+
+export async function getUserProfile(uid: string) {
+    const userRef = doc(db, "users", uid);
+    const result = await getDoc(userRef)
+      .then((doc) => {
+          return doc.data();
+      })
+      .catch(error => {
+          console.log(error);
+          return null;
+      });
+    return result;
+}

@@ -33,14 +33,9 @@ export default function Nav() {
     const profile = useSelector(getProfile);
     const status = useSelector(getStatus);
 
-    // on update
-    useEffect(() => {
-        if(status === 'idle')
-            navigate('/');
-    }, [status]);
-
-    const handleLogOut = (e:React.SyntheticEvent) => {
-        dispatch(userSignOut());
+    const handleLogOut = async (e:React.SyntheticEvent) => {
+        await dispatch(userSignOut());
+        navigate('/');
     }
 
     return (
@@ -50,7 +45,7 @@ export default function Nav() {
                 <div>
                     {status === 'success' ? <>
                         <Button onClick={() => {}}>Create Poll</Button>
-                        <Button onClick={() => navigate('/profile')}>{profile.name}</Button>
+                        <Button onClick={() => navigate('/profile/'+profile.name)}>{profile.name}</Button>
                         <Button onClick={handleLogOut}>Logout</Button>
                     </> : <>
                         <Button onClick={() => navigate('/login')} type="clear">Log In</Button>

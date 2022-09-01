@@ -7,7 +7,7 @@ export interface UserState {
     name: string | null | undefined,
     email: string | null,
     bio: string | null,
-    image: string | null,
+    image: string | undefined,
     polls: number,
     followers: number,
     following: number

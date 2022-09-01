@@ -8,11 +8,7 @@ import { getError, getStatus, googleSignIn, resetError, userSignIn } from "../..
 import { useNavigate } from 'react-router-dom';
 import Card from "../../components/Card";
 
-interface Props {  
-    
-}
-
-export default function LogIn(props:Props) {
+export default function LogIn() {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const status = useSelector(getStatus);

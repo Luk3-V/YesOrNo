@@ -4,7 +4,8 @@ type Props = {
     children?: React.ReactNode;
     className?: string,
     disabled?: boolean,
-    type?: 'solid' | 'clear' | 'outline'
+    type?: 'solid' | 'clear' | 'outline',
+    size?: 'sm' | 'md' | 'lg'
 };
 
 export default function Button(props: Props) {
@@ -19,8 +20,13 @@ export default function Button(props: Props) {
     if(props.disabled)
         style = 'bg-blue-200 text-neutral-50';
 
+    if(props.size === 'sm')
+        style += ' py-1 px-2';
+    else
+        style += ' py-2 px-4';
+
     return (
-        <button onClick={props.onClick} className={`font-bold py-2 px-4 rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
+        <button onClick={props.onClick} className={`font-bold rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
             {props.children}
         </button>
     );
