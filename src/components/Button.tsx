@@ -4,7 +4,7 @@ type Props = {
     children?: React.ReactNode;
     className?: string,
     disabled?: boolean,
-    type?: 'solid' | 'clear' | 'outline',
+    type?: 'solid' | 'clear' | 'outline' | 'circle',
     size?: 'sm' | 'md' | 'lg'
 };
 
@@ -24,6 +24,9 @@ export default function Button(props: Props) {
         style += ' py-1 px-2';
     else
         style += ' py-2 px-4';
+
+    if(props.type === 'circle')
+        style = 'hover:bg-gray-200 text-blue-500 p-1 rounded-full';
 
     return (
         <button onClick={props.onClick} className={`font-bold rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >

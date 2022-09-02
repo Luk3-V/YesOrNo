@@ -5,7 +5,9 @@ import Button from "./Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getProfile, getStatus, userSignOut } from "../store/UserSlice";
 import { AppDispatch } from "../store/store";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FaBell } from "react-icons/fa";
+import Dropdown from "./Dropdown";
 
 const NavWrapper = styled.div`
     position: fixed;
@@ -22,36 +24,46 @@ const NavDiv = styled.div`
     align-items: center;
     display: flex;
     justify-content: space-between;
+    position: relative;
     div button {
-        margin-left: 1rem;
+        margin-left: .75rem;
     }
 `;
 
 export default function Nav() {
     const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
     const profile = useSelector(getProfile);
     const status = useSelector(getStatus);
+    const [open, setOpen] = useState(false);
+    const menuRef = useRef<HTMLElement>();
 
-    const handleLogOut = async (e:React.SyntheticEvent) => {
-        await dispatch(userSignOut());
-        navigate('/');
+    const close = (e: Event)=>{
+        if(menuRef.current && open && !menuRef.current.contains(e.target as any)){
+          setOpen(false)
+        }
     }
+    document.addEventListener('mousedown', close);
 
     return (
-        <NavWrapper className="shadow-md">
+        <NavWrapper className="shadow-sm">
             <NavDiv>
                 <button onClick={() => navigate('/')} className="text-2xl font-medium text-primary">something</button>
                 <div>
                     {status === 'success' ? <>
                         <Button onClick={() => {}}>Create Poll</Button>
-                        <Button onClick={() => navigate('/profile/'+profile.name)}>{profile.name}</Button>
-                        <Button onClick={handleLogOut}>Logout</Button>
+                        <Button onClick={() => {}} type="clear">
+                            <FaBell className="text-2xl inline-block"/>
+                        </Button>
+                        <Button onClick={() => setOpen(!open)} type="circle">
+                            <img className="inline-block w-10 h-10 rounded-full" src={profile.image}/>
+                        </Button>
+                        
                     </> : <>
                         <Button onClick={() => navigate('/login')} type="clear">Log In</Button>
                         <Button onClick={() => navigate('/signup')}>Sign Up</Button>
                     </>}
                 </div>
+                {open && <Dropdown setOpen={setOpen} ref={menuRef}/>}
             </NavDiv>
         </NavWrapper>     
     );
