@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProfile, getStatus, userSignOut } from "../store/UserSlice";
 import { AppDispatch } from "../store/store";
 import { useEffect, useRef, useState } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaPoll } from "react-icons/fa";
 import Dropdown from "./Dropdown";
+import { MdThumbsUpDown } from "react-icons/md";
 
 const NavWrapper = styled.div`
     position: fixed;
@@ -36,9 +37,10 @@ export default function Nav() {
     const status = useSelector(getStatus);
     const [open, setOpen] = useState(false);
     const menuRef = useRef<HTMLElement>();
+    const buttonRef = useRef<HTMLElement>();
 
     const close = (e: Event)=>{
-        if(menuRef.current && open && !menuRef.current.contains(e.target as any)){
+        if(open && !menuRef.current?.contains(e.target as any) && !buttonRef.current?.contains(e.target as any)){
           setOpen(false)
         }
     }
@@ -47,14 +49,14 @@ export default function Nav() {
     return (
         <NavWrapper className="shadow-sm">
             <NavDiv>
-                <button onClick={() => navigate('/')} className="text-2xl font-medium text-primary">something</button>
+                <a onClick={() => navigate('/')} className="flex items-center text-2xl font-medium text-primary cursor-pointer"><MdThumbsUpDown className="text-3xl mr-2"/>YesOrNo</a>
                 <div>
                     {status === 'success' ? <>
                         <Button onClick={() => {}}>Create Poll</Button>
                         <Button onClick={() => {}} type="clear">
                             <FaBell className="text-2xl inline-block"/>
                         </Button>
-                        <Button onClick={() => setOpen(!open)} type="circle">
+                        <Button onClick={() => setOpen(!open)} type="circle" ref={buttonRef}>
                             <img className="inline-block w-10 h-10 rounded-full" src={profile.image}/>
                         </Button>
                         

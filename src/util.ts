@@ -1,6 +1,8 @@
-import { doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useSelector } from "react-redux";
 import { db, storage } from "./firebase";
+import { getProfile, UserState } from "./store/UserSlice";
 
 export async function checkNameTaken(name: string, uid: string, setIsValid: Function, setLoading: Function) {
     setLoading(true);
@@ -47,5 +49,28 @@ export async function getUserProfile(uid: string) {
           console.log(error);
           return null;
       });
+    return result;
+}
+
+export async function createPoll(question: string, image: string | null, profile: UserState["profile"]) {
+    const pollData = {
+        question: question,
+        image: image,
+        uid: profile.uid,
+        name: profile.name,
+        profileImage: profile.image,
+        createdAt: serverTimestamp(),
+        yesCount: 0,
+        noCount: 0
+    } 
+    
+    const result = await addDoc(collection(db, "polls"), pollData)
+        .then((doc) => {
+            return doc.id;
+        })
+        .catch((error) => {
+            console.log(error);
+            return null;
+        }); 
     return result;
 }

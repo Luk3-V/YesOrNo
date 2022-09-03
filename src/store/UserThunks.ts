@@ -1,11 +1,12 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo } from 'firebase/auth'
-import { doc, setDoc, getDoc, collection, getDocs, DocumentData, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, DocumentData, writeBatch, serverTimestamp, addDoc } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 
 import { auth, db, storage } from "../firebase";
-import { getProfile, initialState } from './UserSlice';
+import { PollState } from './PollsSlice';
+import { getProfile, initialState, UserState } from './UserSlice';
 
 // --------- AUTH -----------
 
@@ -110,7 +111,7 @@ export const googleSignIn = createAsyncThunk('user/googleSignIn', async (_, { re
 // --------- FIRESTORE -----------
 
 export const updateUserProfile = createAsyncThunk('user/updateProfile', async (newInfo: {name: string, bio: string, image: string}, { rejectWithValue, getState }) => {
-    const rootState = getState() as {user:{profile:any}}; // TODO better method
+    const rootState = getState() as {user: UserState};
     const profile = rootState.user.profile;
     const newProfile = {
       ...profile,
@@ -122,9 +123,9 @@ export const updateUserProfile = createAsyncThunk('user/updateProfile', async (n
     const batch = writeBatch(db);
     const userRef = doc(db, "users", newProfile.uid as string );
     batch.set(userRef, newProfile);
-    if(profile.name !== newProfile.name) {
+    if(profile.name && profile.name !== newProfile.name) {
       batch.delete(doc(db, "usernames", profile.name)); 
-      batch.set(doc(db, "usernames", newProfile.name), {uid: profile.uid})
+      batch.set(doc(db, "usernames", newProfile.name), {uid: profile.uid});
     }
     const result = await batch.commit()
       .then(() => {
@@ -140,6 +141,37 @@ export const updateUserProfile = createAsyncThunk('user/updateProfile', async (n
 
 export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: string, { rejectWithValue }) =>{
   return await getUserProfile(uid, rejectWithValue);
+});
+
+// TODO DELETE USER
+// get uid & username
+// logout
+// delete user
+// delete username
+// delete profile image
+// delete auth
+// - add some account not found page
+
+export const addPoll = createAsyncThunk('user/addPoll', async (poll: string, { rejectWithValue, getState }) => {
+  const rootState = getState() as {user: UserState};
+  const profile = rootState.user.profile;
+  const newProfile = {
+    ...profile,
+    polls: [poll, ...profile.polls]
+  }
+  console.log(newProfile);
+
+  const userRef = doc(db, "users", newProfile.uid as string );
+  const result = await setDoc(userRef, newProfile)
+    .then(() => {
+      console.log("Document has been added successfully");
+      return poll;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to update profile");
+    });
+  return result
 });
 
 // -----------------------------------

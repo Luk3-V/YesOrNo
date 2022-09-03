@@ -1,3 +1,4 @@
+import { forwardRef, ReactNode } from "react";
 
 type Props = {
     onClick: (values: any) => void;
@@ -5,11 +6,13 @@ type Props = {
     className?: string,
     disabled?: boolean,
     type?: 'solid' | 'clear' | 'outline' | 'circle',
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'sm' | 'md' | 'lg',
+    icon?: ReactNode
 };
 
-export default function Button(props: Props) {
+const Button = forwardRef((props: Props, ref: any) => {
     let style = 'bg-blue-500 hover:bg-blue-700 text-white';
+    let iconStyle= 'text-2xl inline-block mr-3 align-middle';
 
     if(props.type === 'clear')
         style = 'hover:bg-gray-200 text-blue-500';
@@ -29,8 +32,13 @@ export default function Button(props: Props) {
         style = 'hover:bg-gray-200 text-blue-500 p-1 rounded-full';
 
     return (
-        <button onClick={props.onClick} className={`font-bold rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
+        <button ref={ref} onClick={props.onClick} className={`font-bold rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
+            {props.icon && 
+            <div className={iconStyle}>
+                {props.icon}
+            </div>}
             {props.children}
         </button>
     );
-}
+});
+export default Button;

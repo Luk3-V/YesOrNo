@@ -20,7 +20,7 @@ export default function Profile() {
             const result = await getUserProfile(uid);
             setUser(result as any);
         })();
-    }, [username, profile])
+    }, [username, profile]);
 
     if(!user)
         return (<></>);
@@ -38,7 +38,7 @@ export default function Profile() {
                     <h1 className="text-3xl font-semibold mb-2">@{user.name}</h1>
                     <p className="text-lg whitespace-pre-wrap">{user.bio}</p>
                     <div className="flex mt-5 text-gray-700">
-                        <span className="text-inherit"><span className="font-medium">{user.polls}</span> Polls</span>
+                        <span className="text-inherit"><span className="font-medium">{user.pollCount}</span> Polls</span>
                         <div className="ml-3 pl-3 border-l border-gray-700">
                             <span className="mr-3 text-inherit"><span className="font-medium">{user.followers}</span> Followers</span>
                             <span className="text-inherit"><span className="font-medium">{user.following}</span> Following</span>
@@ -46,7 +46,7 @@ export default function Profile() {
                     </div>
                 </Card>
             </div>
-
+            {user.polls}
             <Outlet />
         </>
     );

@@ -72,6 +72,11 @@ export default function EditProfile() {
         navigate('/profile/'+name);
     }
 
+    const handleDelete = (e: Event) => {
+        e.preventDefault();
+        // TODO close modal & confirm popup modal
+    }
+
     return (
         <Modal>
             <form>
@@ -104,8 +109,11 @@ export default function EditProfile() {
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                    <Button className="w-full" disabled={!isValid} onClick={handleEditProfile} >
+                    <Button className="w-full mb-3" disabled={!isValid} onClick={handleEditProfile} >
                         Save
+                    </Button>
+                    <Button className="w-full text-red-500 border-red-500 hover:bg-red-50" type="outline" onClick={handleDelete} >
+                        Delete Account
                     </Button>
                 </div>
             </form>
