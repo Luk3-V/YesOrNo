@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import fromnow from 'fromnow';
+import React, { useEffect, useState } from 'react'
 import { FaTrash, FaTrashAlt } from 'react-icons/fa';
 import { HiDotsHorizontal, HiOutlineTrash, HiTrash } from 'react-icons/hi';
 import { IoMdThumbsDown, IoMdThumbsUp } from 'react-icons/io'
 import { IoClose } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loadAllPolls } from '../store/PollsThunks';
+import { addPollVote, loadAllPolls } from '../store/PollsThunks';
 import { AppDispatch } from '../store/store';
-import { deletePollID, getProfile } from '../store/UserSlice';
-import { deletePoll } from '../util';
+import { deleteUserPollID, getProfile } from '../store/UserSlice';
+import { deletePoll, percentage } from '../util';
 import Button from './Button'
 import Card from './Card'
 import Modal from './Modal';
@@ -19,14 +20,34 @@ export default function Poll(props: any) {
     const profile = useSelector(getProfile);
     const [loading, setLoading] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [vote, setVote] = useState('');
+    const totalVotes = props.data.yesVotes.length + props.data.noVotes.length;
+
+    useEffect(() => {
+        if(props.data.yesVotes.includes(profile.uid))
+            setVote('yes');
+        if(props.data.noVotes.includes(profile.uid))
+            setVote('no');
+    }, []);
 
     const handleDelete = async () => {
         setLoading(true);
         if(await deletePoll(props.data.pollID)) {
-            await dispatch(deletePollID(props.data.pollID))
+            await dispatch(deleteUserPollID(props.data.pollID))
             props.refresh();
         }
         setLoading(false);    
+    }
+
+    const handleVote = async (vote: string) => {
+        setLoading(true);
+        const args = {
+            vote: vote,
+            pollData: props.data,
+            uid: profile.uid
+        }
+        await dispatch(addPollVote(args));
+        setLoading(false);  
     }
 
     return (
@@ -35,20 +56,33 @@ export default function Poll(props: any) {
                 <img src={props.data.profileImage} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3 cursor-pointer" onClick={() => navigate("/profile/"+props.data.name)}/>
                 <div className='grow'>
                     <a className='text-lg font-medium cursor-pointer hover:underline' onClick={() => navigate("/profile/"+props.data.name)}>@{props.data.name}</a>
-                    <span className='block text-gray-500'>{props.data.createdAt}</span>
+                    <span className='block text-gray-500'>{fromnow(props.data.createdAt, { max:1, suffix:true })}</span>
                 </div>
                 <div>
                     {props.data.uid === profile.uid && 
                     <Button onClick={() => setDeleteModal(true)} type='clear' size='sm' disabled={loading}>
-                        <FaTrashAlt className='text-xl text-gray-500 my-1'/>
+                        <FaTrashAlt className='text-xl text-gray-700 my-1'/>
                     </Button>}
                 </div>
             </div>
-            <span className='text-2xl'>{props.data.question}</span>
-            <div className="mt-4 flex space-x-3">
-                <Button onClick={() => {}} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>Yes</Button>
-                <Button onClick={() => {}} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>No</Button>
+            <div className='mb-4 flex'>
+                <span className='grow text-2xl'>{props.data.question}</span>
+                <span className='text-gray-500'>{totalVotes === 1 ? totalVotes+' vote' : totalVotes+' votes'}</span>
             </div>
+
+            {vote.length || props.data.uid === profile.uid ? 
+            <div className="flex space-x-3">
+                <Button onClick={() => {}} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>
+                    Yes {percentage(props.data.yesVotes.length, totalVotes)}%
+                </Button>
+                <Button onClick={() => {}} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>
+                    No {percentage(props.data.noVotes.length, totalVotes)}%
+                    </Button>
+            </div> :
+            <div className="flex space-x-3">
+                <Button onClick={() => handleVote('yes')} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>Yes</Button>
+                <Button onClick={() => handleVote('no')} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>No</Button>
+            </div>}
             
             {deleteModal && 
             <Modal>

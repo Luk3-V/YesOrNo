@@ -4,7 +4,7 @@ import { IoMdText } from 'react-icons/io'
 import { IoImageSharp } from 'react-icons/io5'
 import { HiEmojiHappy } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
-import { addPollID, getProfile } from '../store/UserSlice'
+import { addUserPollID, getProfile } from '../store/UserSlice'
 import Button from './Button'
 import Input from './Input'
 import MenuItem from './MenuItem'
@@ -34,7 +34,7 @@ export default function CreatePoll() {
 
         const pollID = await createPoll(question, null, profile);
         if(pollID) {
-            dispatch(addPollID(pollID));
+            dispatch(addUserPollID(pollID));
             dispatch(loadAllPolls());
         }
         setQuestion('');

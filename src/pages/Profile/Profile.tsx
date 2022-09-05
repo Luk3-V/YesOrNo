@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaPoll } from "react-icons/fa";
 import { IoMdThumbsDown, IoMdThumbsUp } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
@@ -71,6 +72,10 @@ export default function Profile() {
                     </div>
                     <div>
                         <Card size="sm" className="w-52">
+                            <MenuItem icon={<FaPoll />}>Polls</MenuItem>
+                            <div className='block border-b border-gray-300 my-2'></div>
+                            <MenuItem icon={<IoMdThumbsUp />}>Yes Votes</MenuItem>
+                            <MenuItem icon={<IoMdThumbsDown />}>No Votes</MenuItem>
                         </Card>
                     </div>
                 </div>

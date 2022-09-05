@@ -1,7 +1,8 @@
-import { addDoc, collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, serverTimestamp, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useSelector } from "react-redux";
 import { db, storage } from "./firebase";
+import { PollState } from "./store/PollsSlice";
 import { getProfile, UserState } from "./store/UserSlice";
 
 export async function checkNameTaken(name: string, uid: string, setIsValid: Function, setLoading: Function) {
@@ -59,9 +60,9 @@ export async function createPoll(question: string, image: string | null, profile
         uid: profile.uid,
         name: profile.name,
         profileImage: profile.image,
-        createdAt: serverTimestamp(),
-        yesCount: 0,
-        noCount: 0
+        createdAt: new Date().toISOString(),
+        yesVotes: [],
+        noVotes: []
     } 
     
     const result = await addDoc(collection(db, "polls"), pollData)
@@ -96,7 +97,6 @@ export async function getUserPolls(polls: Array<string>) {
             let polls:Array<any> = [];
             docs.forEach((doc) => polls.push({
                 ...doc.data(),
-                createdAt: doc.data().createdAt.toDate().toDateString().substring(3),
                 pollID: doc.id
             }));
             return polls;
@@ -107,4 +107,13 @@ export async function getUserPolls(polls: Array<string>) {
         });
     console.log(result);
     return result;
+}
+
+
+// ------- GENERAL ---------
+
+export function percentage(value: number, total: number) {
+    if(total === 0)
+        return 0;
+    return Math.round((value / total) * 100) ;
 }

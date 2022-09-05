@@ -118,7 +118,7 @@ export const updateUserProfile = createAsyncThunk('user/updateProfile', async (n
       name: newInfo.name,
       bio: newInfo.bio,
       image: newInfo.image
-    }
+    };
 
     const batch = writeBatch(db);
     const userRef = doc(db, "users", newProfile.uid as string );
@@ -152,7 +152,7 @@ export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: 
 // delete auth
 // - add some account not found page
 
-export const addPollID = createAsyncThunk('user/addPollID', async (pollID: string, { rejectWithValue, getState }) => {
+export const addUserPollID = createAsyncThunk('user/addPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
   const newProfile = {
@@ -174,7 +174,7 @@ export const addPollID = createAsyncThunk('user/addPollID', async (pollID: strin
   return result
 });
 
-export const deletePollID = createAsyncThunk('user/deletePollID', async (pollID: string, { rejectWithValue, getState }) => {
+export const deleteUserPollID = createAsyncThunk('user/deletePollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
   const newProfile = {
@@ -195,6 +195,9 @@ export const deletePollID = createAsyncThunk('user/deletePollID', async (pollID:
     });
   return result
 });
+
+// addUserVote
+// deleteUserVote
 
 // -----------------------------------
 
