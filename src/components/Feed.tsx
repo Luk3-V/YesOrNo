@@ -12,9 +12,13 @@ export default function Feed() {
         dispatch(loadAllPolls());
     }, [])
 
+    const refresh = () => {
+        dispatch(loadAllPolls());
+    }
+
     return (
         <div className='mt-10'>
-            {allPolls.map((poll: any, i: number) => <Poll className="mt-10" key={i} data={poll} />)}
+            {allPolls.map((poll: any) => <Poll className="mt-6" key={poll.pollID} data={poll} refresh={refresh}/>)}
         </div>
     );
 }

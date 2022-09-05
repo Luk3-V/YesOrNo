@@ -3,6 +3,7 @@ import { Timestamp } from "firebase/firestore";
 import { loadAllPolls } from "./PollsThunks";
 
 export interface PollState {
+    pollID: string,
     createdAt: string,
     uid: string,
     name: string,

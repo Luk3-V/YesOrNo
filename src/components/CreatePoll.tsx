@@ -4,14 +4,14 @@ import { IoMdText } from 'react-icons/io'
 import { IoImageSharp } from 'react-icons/io5'
 import { HiEmojiHappy } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProfile } from '../store/UserSlice'
+import { addPollID, getProfile } from '../store/UserSlice'
 import Button from './Button'
 import Input from './Input'
 import MenuItem from './MenuItem'
 import { AppDispatch } from '../store/store'
 import { createPoll } from '../util'
-import { addPoll } from '../store/UserThunks'
 import Card from './Card'
+import { loadAllPolls } from '../store/PollsThunks'
 
 export default function CreatePoll() {
     const dispatch = useDispatch<AppDispatch>();
@@ -33,15 +33,17 @@ export default function CreatePoll() {
         e.preventDefault();
 
         const pollID = await createPoll(question, null, profile);
-        if(pollID)
-            dispatch(addPoll(pollID));
+        if(pollID) {
+            dispatch(addPollID(pollID));
+            dispatch(loadAllPolls());
+        }
         setQuestion('');
     }
 
     return (
         <Card size="sm">
             <div className="flex justify-between">
-                <img src={profile.image} alt="" className="w-12 h-12 rounded-full shadow-md mr-3"/>
+                <img src={profile.image} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3"/>
                 <Input id="question" type="text" placeholder="Ask the world a question..." value={question} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuestion(e.target.value)}/>
             </div>
             <div className='block border-b border-gray-300 my-4'></div>

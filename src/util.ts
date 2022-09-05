@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, serverTimestamp, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useSelector } from "react-redux";
 import { db, storage } from "./firebase";
@@ -43,7 +43,7 @@ export async function getUserProfile(uid: string) {
     const userRef = doc(db, "users", uid);
     const result = await getDoc(userRef)
       .then((doc) => {
-          return doc.data();
+          return doc.data() as UserState["profile"];
       })
       .catch(error => {
           console.log(error);
@@ -72,5 +72,39 @@ export async function createPoll(question: string, image: string | null, profile
             console.log(error);
             return null;
         }); 
+    return result;
+}
+
+export async function deletePoll(pollID: string) {
+    const result = await deleteDoc(doc(db, "polls", pollID))
+        .then(() => {
+            return 'success';
+        })
+        .catch((error) => {
+            console.log(error);
+            return null;
+        }); 
+    return result;
+}
+
+export async function getUserPolls(polls: Array<string>) {
+    console.log("query", polls);
+    const pollsQuery = query(collection(db, "polls"), where(documentId(), 'in', polls), limit(10)); 
+    console.log(pollsQuery);
+    const result = await getDocs(pollsQuery)
+        .then((docs) => {
+            let polls:Array<any> = [];
+            docs.forEach((doc) => polls.push({
+                ...doc.data(),
+                createdAt: doc.data().createdAt.toDate().toDateString().substring(3),
+                pollID: doc.id
+            }));
+            return polls;
+        })
+        .catch((error) => {
+            console.log(error);
+            return [];
+        });
+    console.log(result);
     return result;
 }

@@ -11,17 +11,17 @@ type Props = {
 };
 
 const Button = forwardRef((props: Props, ref: any) => {
-    let style = 'bg-blue-500 hover:bg-blue-700 text-white';
+    let style = 'bg-blue-500 hover:bg-blue-700 text-white rounded';
     let iconStyle= 'text-2xl inline-block mr-3 align-middle';
 
     if(props.type === 'clear')
-        style = 'hover:bg-gray-200 text-blue-500';
+        style = 'hover:bg-gray-200 text-blue-500 rounded';
 
     if(props.type === 'outline')
-        style = 'border border-gray-500 hover:bg-gray-100 text-gray-700';
+        style = 'border border-gray-500 hover:bg-gray-100 text-gray-700 rounded';
 
     if(props.disabled)
-        style = 'bg-blue-200 text-neutral-50';
+        style = 'bg-blue-200 text-neutral-50 rounded';
 
     if(props.size === 'sm')
         style += ' py-1 px-2';
@@ -32,7 +32,7 @@ const Button = forwardRef((props: Props, ref: any) => {
         style = 'hover:bg-gray-200 text-blue-500 p-1 rounded-full';
 
     return (
-        <button ref={ref} onClick={props.onClick} className={`font-bold rounded focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
+        <button ref={ref} onClick={props.onClick} className={`font-bold focus:shadow-outline ${style} ${props.className}`} disabled={props.disabled} >
             {props.icon && 
             <div className={iconStyle}>
                 {props.icon}

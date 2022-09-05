@@ -1,29 +1,46 @@
 import { useEffect, useState } from "react";
+import { IoMdThumbsDown, IoMdThumbsUp } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
-import { getProfile, initialState } from "../../store/UserSlice";
-import { getUserID, getUserProfile } from "../../util";
+import MenuItem from "../../components/MenuItem";
+import Poll from "../../components/Poll";
+import { PollState } from "../../store/PollsSlice";
+import { getProfile, initialState, UserState } from "../../store/UserSlice";
+import { getUserID, getUserPolls, getUserProfile } from "../../util";
 
 export default function Profile() {
     const navigate = useNavigate();
     const profile = useSelector(getProfile);
     const { username } = useParams();
-    const [user, setUser] = useState<typeof initialState.profile | null >(null);
+    const [user, setUser] = useState<UserState["profile"]>();
+    const [userPolls, setUserPolls] = useState<PollState[]>([]);
 
     useEffect(() => {
-        // check if current
-        // else load user
         (async () => {
             const uid = await getUserID(username as string);
             const result = await getUserProfile(uid);
-            setUser(result as any);
+            if(result) {
+                setUser(result);
+
+                if(result.polls.length) {
+                    const polls = await getUserPolls(result.polls);
+                    setUserPolls(polls);
+                }
+            }
         })();
     }, [username, profile]);
 
+    const refresh = async () => {
+        if(user) {
+            const polls = await getUserPolls(user.polls);
+            setUserPolls(polls);
+        }
+    }
+
     if(!user)
-        return (<></>);
+        return (<>User not found.</>);
     
     return (
         <>
@@ -45,8 +62,20 @@ export default function Profile() {
                         </div>
                     </div>
                 </Card>
+
+                <div className="flex mt-8">
+                    <div className="grow pr-3">
+                        {userPolls ? userPolls.map((poll) => 
+                            <Poll key={poll.pollID} data={poll} className="mb-6" refresh={refresh}/>
+                        ) : <></>}
+                    </div>
+                    <div>
+                        <Card size="sm" className="w-52">
+                        </Card>
+                    </div>
+                </div>
             </div>
-            {user.polls}
+
             <Outlet />
         </>
     );

@@ -152,20 +152,42 @@ export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: 
 // delete auth
 // - add some account not found page
 
-export const addPoll = createAsyncThunk('user/addPoll', async (poll: string, { rejectWithValue, getState }) => {
+export const addPollID = createAsyncThunk('user/addPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
   const newProfile = {
     ...profile,
-    polls: [poll, ...profile.polls]
+    polls: [pollID, ...profile.polls]
   }
   console.log(newProfile);
 
   const userRef = doc(db, "users", newProfile.uid as string );
   const result = await setDoc(userRef, newProfile)
     .then(() => {
-      console.log("Document has been added successfully");
-      return poll;
+      console.log("Document updated successfully");
+      return pollID;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to update profile");
+    });
+  return result
+});
+
+export const deletePollID = createAsyncThunk('user/deletePollID', async (pollID: string, { rejectWithValue, getState }) => {
+  const rootState = getState() as {user: UserState};
+  const profile = rootState.user.profile;
+  const newProfile = {
+    ...profile,
+    polls: profile.polls.filter((x) => x !== pollID)
+  }
+  console.log(newProfile);
+
+  const userRef = doc(db, "users", newProfile.uid as string );
+  const result = await setDoc(userRef, newProfile)
+    .then(() => {
+      console.log("Document updated successfully");
+      return pollID;
     })
     .catch(error => {
         console.log(error);

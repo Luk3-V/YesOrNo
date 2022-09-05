@@ -10,7 +10,8 @@ export const loadAllPolls = createAsyncThunk('polls/loadAllPolls', async (_, { r
             let polls:Array<any> = [];
             docs.forEach((doc) => polls.push({
                 ...doc.data(),
-                createdAt: doc.data().createdAt.toString()
+                createdAt: doc.data().createdAt.toDate().toDateString().substring(3),
+                pollID: doc.id
             }));
             return polls;
         })

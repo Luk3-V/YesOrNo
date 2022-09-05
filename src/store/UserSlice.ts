@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addPoll } from './UserThunks'
+import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addPollID, deletePollID } from './UserThunks'
 
 export interface UserState {
   profile: {
@@ -105,15 +105,19 @@ const userSlice = createSlice({
       state.status = 'fail';
       state.error = action.payload as string;
     })
-    .addCase(addPoll.fulfilled, (state, action) => {
+    .addCase(addPollID.fulfilled, (state, action) => {
       state.profile.polls.push(action.payload);
       console.log("CREATED");
+    })
+    .addCase(deletePollID.fulfilled, (state, action) => {
+      state.profile.polls.filter((x) => x !== action.payload)
+      console.log("DELETED");
     })
   }
 })
 
 // Action creators are generated for each case reducer function
-export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn };
+export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, addPollID, deletePollID };
 export const { resetError } = userSlice.actions;
 export const getProfile = (state: any) => state.user.profile;
 export const getStatus = (state: any) => state.user.status;
