@@ -12,7 +12,7 @@ type Props = {
 
 const Button = forwardRef((props: Props, ref: any) => {
     let style = 'bg-blue-500 hover:bg-blue-700 text-white rounded';
-    let iconStyle= 'text-2xl inline-block mr-3 align-middle';
+    let iconStyle= 'text-xl inline-block mr-3 align-middle';
 
     if(props.type === 'clear')
         style = 'hover:bg-gray-200 text-blue-500 rounded';

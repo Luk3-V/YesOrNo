@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addUserPollID, deleteUserPollID } from './UserThunks'
+import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addUserPollID, deleteUserPollID, addUserVote } from './UserThunks'
 
 export interface UserState {
   profile: {
@@ -8,11 +8,11 @@ export interface UserState {
     email: string | null,
     bio: string | null,
     image: string | undefined,
-    pollCount: number,
     followers: number,
     following: number,
     polls: Array<string>,
-    votes: Array<string>
+    yesVotes: Array<string>
+    noVotes: Array<string>
   },
   status: 'idle' | 'loading' | 'success' | 'fail'
   error: string | undefined,
@@ -26,11 +26,11 @@ export const initialState: UserState = {
     email: null,
     bio: null,
     image: 'https://firebasestorage.googleapis.com/v0/b/luk3v-pollify.appspot.com/o/default.png?alt=media&token=6139a68d-387a-4401-be21-ebafe196613b',
-    pollCount: 0,
     followers: 0,
     following: 0,
     polls: [],
-    votes: []
+    yesVotes: [],
+    noVotes: []
   },
   status: 'idle',
   error: undefined,
@@ -109,17 +109,21 @@ const userSlice = createSlice({
     })
     .addCase(addUserPollID.fulfilled, (state, action) => {
       state.profile.polls.push(action.payload);
-      console.log("CREATED");
+      console.log("POLL ID ADDED");
     })
     .addCase(deleteUserPollID.fulfilled, (state, action) => {
-      state.profile.polls.filter((x) => x !== action.payload)
-      console.log("DELETED");
+      state.profile.polls = state.profile.polls.filter((x) => x !== action.payload)
+      console.log("POLL ID DELETED");
+    })
+    .addCase(addUserVote.fulfilled, (state, action) => {
+      state.profile = action.payload
+      console.log("VOTE ID ADDED");
     })
   }
 })
 
 // Action creators are generated for each case reducer function
-export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, addUserPollID, deleteUserPollID };
+export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, addUserPollID, deleteUserPollID, addUserVote };
 export const { resetError } = userSlice.actions;
 export const getProfile = (state: any) => state.user.profile;
 export const getStatus = (state: any) => state.user.status;

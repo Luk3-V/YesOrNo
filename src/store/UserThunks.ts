@@ -152,14 +152,13 @@ export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: 
 // delete auth
 // - add some account not found page
 
-export const addUserPollID = createAsyncThunk('user/addPollID', async (pollID: string, { rejectWithValue, getState }) => {
+export const addUserPollID = createAsyncThunk('user/addUserPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
   const newProfile = {
     ...profile,
     polls: [pollID, ...profile.polls]
   }
-  console.log(newProfile);
 
   const userRef = doc(db, "users", newProfile.uid as string );
   const result = await setDoc(userRef, newProfile)
@@ -174,14 +173,14 @@ export const addUserPollID = createAsyncThunk('user/addPollID', async (pollID: s
   return result
 });
 
-export const deleteUserPollID = createAsyncThunk('user/deletePollID', async (pollID: string, { rejectWithValue, getState }) => {
+export const deleteUserPollID = createAsyncThunk('user/deleteUserPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
   const newProfile = {
     ...profile,
     polls: profile.polls.filter((x) => x !== pollID)
   }
-  console.log(newProfile);
+  console.log(pollID, newProfile.polls)
 
   const userRef = doc(db, "users", newProfile.uid as string );
   const result = await setDoc(userRef, newProfile)
@@ -196,7 +195,27 @@ export const deleteUserPollID = createAsyncThunk('user/deletePollID', async (pol
   return result
 });
 
-// addUserVote
+export const addUserVote = createAsyncThunk('user/addUserVote', async ({vote, pollID}: {vote: string, pollID: string}, { rejectWithValue, getState }) => {
+  const rootState = getState() as {user: UserState};
+  const profile = rootState.user.profile;
+  const newProfile = {
+    ...profile,
+    yesVotes: vote === 'yes' ? [pollID, ...profile.yesVotes] : profile.yesVotes,
+    noVotes: vote === 'no' ? [pollID, ...profile.noVotes] : profile.noVotes
+  }
+
+  const userRef = doc(db, "users", newProfile.uid as string );
+  const result = await setDoc(userRef, newProfile)
+    .then(() => {
+      console.log("Document updated successfully");
+      return newProfile;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to update profile");
+    });
+  return result
+});
 // deleteUserVote
 
 // -----------------------------------

@@ -76,22 +76,8 @@ export async function createPoll(question: string, image: string | null, profile
     return result;
 }
 
-export async function deletePoll(pollID: string) {
-    const result = await deleteDoc(doc(db, "polls", pollID))
-        .then(() => {
-            return 'success';
-        })
-        .catch((error) => {
-            console.log(error);
-            return null;
-        }); 
-    return result;
-}
-
 export async function getUserPolls(polls: Array<string>) {
-    console.log("query", polls);
     const pollsQuery = query(collection(db, "polls"), where(documentId(), 'in', polls), limit(10)); 
-    console.log(pollsQuery);
     const result = await getDocs(pollsQuery)
         .then((docs) => {
             let polls:Array<any> = [];
@@ -105,7 +91,6 @@ export async function getUserPolls(polls: Array<string>) {
             console.log(error);
             return [];
         });
-    console.log(result);
     return result;
 }
 

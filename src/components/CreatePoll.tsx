@@ -41,7 +41,7 @@ export default function CreatePoll() {
     }
 
     return (
-        <Card size="sm">
+        <Card size="sm" className='mb-10'>
             <div className="flex justify-between">
                 <img src={profile.image} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3"/>
                 <Input id="question" type="text" placeholder="Ask the world a question..." value={question} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuestion(e.target.value)}/>

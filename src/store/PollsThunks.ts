@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addDoc, collection, doc, getDocs, limit, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { PollState } from "./PollsSlice";
 
@@ -19,6 +19,18 @@ export const loadAllPolls = createAsyncThunk('polls/loadAllPolls', async (_, { r
             console.log(error);
             return rejectWithValue(error.message);
         });
+    return result;
+});
+
+export const deletePoll = createAsyncThunk('polls/deletePoll', async (pollID: string, { rejectWithValue }) => {
+    const result = await deleteDoc(doc(db, "polls", pollID))
+        .then(() => {
+            return pollID;
+        })
+        .catch((error) => {
+            console.log(error);
+            return rejectWithValue(error.message);
+        }); 
     return result;
 });
 

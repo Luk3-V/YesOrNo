@@ -24,21 +24,15 @@ export default function Profile() {
             const result = await getUserProfile(uid);
             if(result) {
                 setUser(result);
-
                 if(result.polls.length) {
                     const polls = await getUserPolls(result.polls);
                     setUserPolls(polls);
+                } else {
+                    setUserPolls([]);
                 }
             }
         })();
     }, [username, profile]);
-
-    const refresh = async () => {
-        if(user) {
-            const polls = await getUserPolls(user.polls);
-            setUserPolls(polls);
-        }
-    }
 
     if(!user)
         return (<>User not found.</>);
@@ -56,7 +50,7 @@ export default function Profile() {
                     <h1 className="text-3xl font-semibold mb-2">@{user.name}</h1>
                     <p className="text-lg whitespace-pre-wrap">{user.bio}</p>
                     <div className="flex mt-5 text-gray-700">
-                        <span className="text-inherit"><span className="font-medium">{user.pollCount}</span> Polls</span>
+                        <span className="text-inherit"><span className="font-medium">{user.polls.length}</span> Polls</span>
                         <div className="ml-3 pl-3 border-l border-gray-700">
                             <span className="mr-3 text-inherit"><span className="font-medium">{user.followers}</span> Followers</span>
                             <span className="text-inherit"><span className="font-medium">{user.following}</span> Following</span>
@@ -67,7 +61,7 @@ export default function Profile() {
                 <div className="flex mt-8">
                     <div className="grow pr-3">
                         {userPolls ? userPolls.map((poll) => 
-                            <Poll key={poll.pollID} data={poll} className="mb-6" refresh={refresh}/>
+                            <Poll key={poll.pollID} data={poll} className="mb-6"/>
                         ) : <></>}
                     </div>
                     <div>
