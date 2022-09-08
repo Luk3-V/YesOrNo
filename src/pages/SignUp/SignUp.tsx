@@ -8,7 +8,8 @@ import { AppDispatch } from "../../store/store";
 import { getError, getProfile, getStatus, googleSignIn, resetError, userSignUp } from "../../store/UserSlice";
 import { debounce } from 'lodash';
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function SignUp() {
     const dispatch = useDispatch<AppDispatch>();
@@ -39,9 +40,18 @@ export default function SignUp() {
         dispatch(userSignUp(info));
     }
 
+    // have to call popup here or else redirects path
     const handleGoogleSignUp = (e: Event) => {
         e.preventDefault();
-        dispatch(googleSignIn());
+        const provider = new GoogleAuthProvider();
+
+        signInWithPopup(auth, provider)
+            .then(async (cred) => {
+                await dispatch(googleSignIn(cred));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
     return (

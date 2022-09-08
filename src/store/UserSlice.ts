@@ -1,15 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addUserPollID, deleteUserPollID, addUserVote } from './UserThunks'
+import { updateUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, loadUserProfile, addUserPollID, deleteUserPollID, addUserVote, addUserFollow, deleteUserFollow } from './UserThunks'
 
 export interface UserState {
   profile: {
     uid: string | null,
+    createdAt: string | null,
     name: string | null | undefined,
     email: string | null,
     bio: string | null,
     image: string | undefined,
-    followers: number,
-    following: number,
+    followers: Array<string>,
+    following: Array<string>,
     polls: Array<string>,
     yesVotes: Array<string>
     noVotes: Array<string>
@@ -22,12 +23,13 @@ export interface UserState {
 export const initialState: UserState = {
   profile: {
     uid: null,
+    createdAt: null,
     name: 'guest',
     email: null,
     bio: null,
     image: 'https://firebasestorage.googleapis.com/v0/b/luk3v-pollify.appspot.com/o/default.png?alt=media&token=6139a68d-387a-4401-be21-ebafe196613b',
-    followers: 0,
-    following: 0,
+    followers: [],
+    following: [],
     polls: [],
     yesVotes: [],
     noVotes: []
@@ -112,18 +114,26 @@ const userSlice = createSlice({
       console.log("POLL ID ADDED");
     })
     .addCase(deleteUserPollID.fulfilled, (state, action) => {
-      state.profile.polls = state.profile.polls.filter((x) => x !== action.payload)
+      state.profile.polls = state.profile.polls.filter((x) => x !== action.payload);
       console.log("POLL ID DELETED");
     })
     .addCase(addUserVote.fulfilled, (state, action) => {
-      state.profile = action.payload
+      state.profile = action.payload;
       console.log("VOTE ID ADDED");
+    })
+    .addCase(addUserFollow.fulfilled, (state, action) => {
+      state.profile.following.push(action.payload);
+      console.log("FOLLOW ADDED");
+    })
+    .addCase(deleteUserFollow.fulfilled, (state, action) => {
+      state.profile.following = state.profile.following.filter((x) => x !== action.payload);
+      console.log("FOLLOW DELETED");
     })
   }
 })
 
 // Action creators are generated for each case reducer function
-export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, addUserPollID, deleteUserPollID, addUserVote };
+export { updateUserProfile, loadUserProfile, userSignIn, userSignOut, userSignUp, googleSignIn, addUserPollID, deleteUserPollID, addUserVote, addUserFollow, deleteUserFollow };
 export const { resetError } = userSlice.actions;
 export const getProfile = (state: any) => state.user.profile;
 export const getStatus = (state: any) => state.user.status;

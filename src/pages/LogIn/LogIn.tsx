@@ -7,6 +7,8 @@ import { AppDispatch } from "../../store/store";
 import { getError, getStatus, googleSignIn, resetError, userSignIn } from "../../store/UserSlice";
 import { useNavigate } from 'react-router-dom';
 import Card from "../../components/Card";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase";
 
 export default function LogIn() {
     const navigate = useNavigate();
@@ -37,9 +39,18 @@ export default function LogIn() {
         navigate('/');
     }
 
+    // have to call popup here or else redirects path
     const handleGoogleLogIn = async (e: Event) => {
         e.preventDefault();
-        await dispatch(googleSignIn());
+        const provider = new GoogleAuthProvider();
+
+        await signInWithPopup(auth, provider)
+            .then(async (cred) => {
+                await dispatch(googleSignIn(cred));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
         navigate('/');
     }
 

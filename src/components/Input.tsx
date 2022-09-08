@@ -11,12 +11,12 @@ const Input = forwardRef((props: any, ref: any) => {
             {props.type === 'textarea' ? 
             <textarea 
                 className={inputClasses + ' ' + props.className}
-                id={props.id} placeholder={props.placeholder} value={props.value} onChange={props.onChange} rows={props.rows} cols={props.cols}
+                {...props}
                 ref={ref}
             /> : 
             <input 
                 className={inputClasses + ' ' + props.className} 
-                id={props.id} type={props.type} placeholder={props.placeholder} value={props.value} onChange={props.onChange} minLength={props.minLength}
+                {...props}
                 ref={ref}
             />}
         </>

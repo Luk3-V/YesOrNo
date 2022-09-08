@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo } from 'firebase/auth'
-import { doc, setDoc, getDoc, collection, getDocs, DocumentData, writeBatch, serverTimestamp, addDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo, UserCredential } from 'firebase/auth'
+import { doc, setDoc, getDoc, collection, getDocs, DocumentData, writeBatch, serverTimestamp, addDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 import { generateFromEmail, generateUsername } from "unique-username-generator";
 
@@ -79,33 +79,18 @@ export const userSignOut = createAsyncThunk('user/signout', async () => {
     return result;
 });
 
-export const googleSignIn = createAsyncThunk('user/googleSignIn', async (_, { rejectWithValue } ) => {
+export const googleSignIn = createAsyncThunk('user/googleSignIn', async (cred: UserCredential, { rejectWithValue } ) => {
   console.log('google');
-  const provider = new GoogleAuthProvider();
-
-  const result = signInWithPopup(auth, provider)
-    .then(async (cred) => {
-      const user =  {
-        uid: cred.user.uid as string,
-        email: cred.user.email as string
-      };
-      console.log(cred.user.photoURL);
-      // TODO add image
-
-      if(getAdditionalUserInfo(cred)?.isNewUser)
-        return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
-      else
-        return {profile: await getUserProfile(user.uid, rejectWithValue), isNewUser: false};
-    })
-    .catch((err) => {
-      // TODO custom error messages
-      switch(err.code) {
-        default:
-          console.log(err.message);
-          return rejectWithValue('Unable to create account');
-      }
-    });
-  return result;
+  const user =  {
+    uid: cred.user.uid as string,
+    email: cred.user.email as string
+  };
+  console.log(cred.user.photoURL);
+  // TODO add image
+  if(getAdditionalUserInfo(cred)?.isNewUser)
+    return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
+  else
+    return {profile: await getUserProfile(user.uid, rejectWithValue), isNewUser: false};
 });
 
 // --------- FIRESTORE -----------
@@ -143,8 +128,11 @@ export const loadUserProfile = createAsyncThunk('user/loadProfile', async (uid: 
   return await getUserProfile(uid, rejectWithValue);
 });
 
+export const deleteUserProfile = createAsyncThunk('user/deleteProfile', async (uid: string, { rejectWithValue }) =>{
+ 
+});
 // TODO DELETE USER
-// get uid & username
+// get current profile & name
 // logout
 // delete user
 // delete username
@@ -216,7 +204,38 @@ export const addUserVote = createAsyncThunk('user/addUserVote', async ({vote, po
     });
   return result
 });
-// deleteUserVote
+
+export const addUserFollow = createAsyncThunk('user/addUserFollow', async ({follower, following}: {follower: string, following: string}, { rejectWithValue }) => {
+  const batch = writeBatch(db);
+  batch.update(doc(db, "users", follower), {following: arrayUnion(following)})
+  batch.update(doc(db, "users", following), {followers: arrayUnion(follower)})
+  const result = await batch.commit()
+    .then(() => {
+      console.log("Document updated successfully");
+      return following;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to update profile");
+    });
+  return result
+});
+
+export const deleteUserFollow = createAsyncThunk('user/deleteUserFollow', async ({follower, following}: {follower: string, following: string}, { rejectWithValue }) => {
+  const batch = writeBatch(db);
+  batch.update(doc(db, "users", follower), {following: arrayRemove(following)})
+  batch.update(doc(db, "users", following), {followers: arrayRemove(follower)})
+  const result = await batch.commit()
+    .then(() => {
+      console.log("Document updated successfully");
+      return following;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue("Unable to update profile");
+    });
+  return result
+});
 
 // -----------------------------------
 
@@ -224,6 +243,7 @@ async function addUserProfile(user: {uid: string, email: string, image?: string}
     let profile = {
       ...initialState.profile,
       uid: user.uid,
+      createdAt: new Date().toISOString(),
       name: await createTempName(user.email),
       email: user.email,
       image: user.image ? user.image : initialState.profile.image

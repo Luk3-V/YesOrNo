@@ -76,14 +76,14 @@ export default function CreatProfile() {
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
                             Username
                         </label>
-                        <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} minLength="3" error={!isValid} />
+                        <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} error={!isValid} />
                         {!isValid && <span className='text-sm text-red-600'>Invalid Username</span>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">
                             Bio
                         </label>
-                        <Input id="bio" type="textarea" rows="3" />
+                        <Input id="bio" type="textarea" rows="3" maxlength="100" />
                     </div>
                     <div className="mb-6">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
