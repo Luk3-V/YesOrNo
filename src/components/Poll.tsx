@@ -8,10 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { PollState } from '../store/PollsSlice';
-import { addPollVote, deletePoll, loadAllPolls } from '../store/PollsThunks';
+import { addPollVote, deletePoll, loadAllPolls } from '../store/PollsSlice';
 import { AppDispatch } from '../store/store';
-import { deleteUserPollID, getProfile } from '../store/UserSlice';
-import { addUserVote } from '../store/UserThunks';
+import { deleteUserPollID, getProfile, addUserVote } from '../store/UserSlice';
 import { percentage } from '../util';
 import Button from './Button'
 import Card from './Card'
@@ -32,8 +31,6 @@ const Bar = styled.span`
 `;
 
 function PollResult(props: any) {
-
-
     return (
         <div className={'relative w-1/2 font-bold text-gray-700  overflow-hidden ' }>
             <span className={"absolute block h-10 w-full z-10 rounded " + (props.vote ? "border-2 border-blue-500" : "border border-gray-500")}></span>
