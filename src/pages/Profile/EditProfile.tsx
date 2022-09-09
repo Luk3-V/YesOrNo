@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
@@ -48,7 +48,6 @@ export default function EditProfile() {
 
     const handleEditProfile = async (e: Event) => {
         e.preventDefault();
-
         if(loading)
             return;
         
@@ -58,15 +57,12 @@ export default function EditProfile() {
                 bio: { value:string }
             }
         };
-
         const imageURL = image ? await uploadProfileImg(image as File, profile.uid, setLoading) : profile.image;
-
         const newInfo = {
             name: target.form.name.value,
             bio: target.form.bio.value,
             image: imageURL
         };
-        console.log(newInfo); 
 
         await dispatch(updateUserProfile(newInfo));
         navigate('/profile/'+name);

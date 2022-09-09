@@ -1,21 +1,25 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo, UserCredential } from 'firebase/auth'
-import { doc, setDoc, getDoc, collection, getDocs, DocumentData, writeBatch, serverTimestamp, addDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { useSelector } from 'react-redux';
-import { generateFromEmail, generateUsername } from "unique-username-generator";
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, getAdditionalUserInfo, UserCredential, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove } from 'firebase/firestore';
 
-import { auth, db, storage } from "../firebase";
-import { PollState } from './PollsSlice';
-import { getProfile, initialState, UserState } from './UserSlice';
+import { auth, db } from "../firebase";
+import { initialState, UserState } from './UserSlice';
 
 // --------- AUTH -----------
+
+export const test = createAsyncThunk('user/test', async (_, { rejectWithValue } ) => {
+
+});
 
 // TODO DONT MAKE ACCOUNT IF FAILED TO ADD DATABASE
 interface signUpInfo {email: string, password: string, confirmPassword: string};
 export const userSignUp = createAsyncThunk('user/signup', async ({email, password, confirmPassword}: signUpInfo, { rejectWithValue } ) => {
+    console.log('signing up');
+    if(!email)
+      return rejectWithValue('Please enter email');
     if(password !== confirmPassword)
       return rejectWithValue('Passwords do not match');
-  
+    console.log('2');
     const result = await createUserWithEmailAndPassword(auth, email, password)
       .then(async (cred) => {
         const user = {
@@ -79,18 +83,28 @@ export const userSignOut = createAsyncThunk('user/signout', async () => {
     return result;
 });
 
-export const googleSignIn = createAsyncThunk('user/googleSignIn', async (cred: UserCredential, { rejectWithValue } ) => {
-  console.log('google');
-  const user =  {
-    uid: cred.user.uid as string,
-    email: cred.user.email as string
-  };
-  console.log(cred.user.photoURL);
-  // TODO add image
-  if(getAdditionalUserInfo(cred)?.isNewUser)
-    return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
-  else
-    return {profile: await getUserProfile(user.uid, rejectWithValue), isNewUser: false};
+export const googleSignIn = createAsyncThunk('user/googleSignIn', async (_, { rejectWithValue } ) => {
+  const provider = new GoogleAuthProvider();
+
+  const result = signInWithPopup(auth, provider)
+    .then(async (cred) => {
+      const user =  {
+        uid: cred.user.uid as string,
+        email: cred.user.email as string
+      };
+      console.log(cred.user.photoURL);
+      // TODO add image
+      if(getAdditionalUserInfo(cred)?.isNewUser)
+        return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
+      else
+        return {profile: await getUserProfile(user.uid, rejectWithValue), isNewUser: false};
+    })
+    .catch((err) => {
+        console.log(err);
+        return rejectWithValue(err.message);
+    });
+
+  return result;
 });
 
 // --------- FIRESTORE -----------

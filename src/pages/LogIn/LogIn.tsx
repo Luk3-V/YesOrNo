@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { AppDispatch } from "../../store/store";
-import { getError, getStatus, googleSignIn, resetError, userSignIn } from "../../store/UserSlice";
+import { getError, getIsNewUser, getStatus, googleSignIn, resetError, userSignIn } from "../../store/UserSlice";
 import { useNavigate } from 'react-router-dom';
 import Card from "../../components/Card";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -15,6 +15,7 @@ export default function LogIn() {
     const dispatch = useDispatch<AppDispatch>();
     const status = useSelector(getStatus);
     const error = useSelector(getError);
+    const isNewUser = useSelector(getIsNewUser);
 
     // on mount
     useEffect(() => {
@@ -22,7 +23,7 @@ export default function LogIn() {
             dispatch(resetError());
     }, []);
 
-    const handleLogIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleLogIn = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
           form: {
@@ -35,23 +36,18 @@ export default function LogIn() {
             password: target.form.password.value,
         };
 
-        await dispatch(userSignIn(info));
-        navigate('/');
+        dispatch(userSignIn(info));
     }
 
     // have to call popup here or else redirects path
-    const handleGoogleLogIn = async (e: Event) => {
+    const handleGoogleLogIn = (e: Event) => {
         e.preventDefault();
-        const provider = new GoogleAuthProvider();
 
-        await signInWithPopup(auth, provider)
-            .then(async (cred) => {
-                await dispatch(googleSignIn(cred));
-            })
-            .catch((err) => {
-                console.log(err);
+        dispatch(googleSignIn())
+            .then((action) => {
+                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser) //quick fix to handle new user
+                    navigate('/create');
             });
-        navigate('/');
     }
 
     return (

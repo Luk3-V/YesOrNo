@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaCalendarAlt, FaPoll } from "react-icons/fa";
 import { IoMdThumbsDown, IoMdThumbsUp } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 import MenuItem from "../../components/MenuItem";
@@ -11,6 +11,11 @@ import { PollState } from "../../store/PollsSlice";
 import { AppDispatch } from "../../store/store";
 import { addUserFollow, deleteUserFollow, getProfile, initialState, UserState } from "../../store/UserSlice";
 import { getUserID, getUserPolls, getUserProfile } from "../../util";
+import EditProfile from "./EditProfile";
+
+function PrivateRoutes(props: any) {
+    return ( props.isOwner ? <Outlet /> : <Navigate to={'/profile/'+props.username} /> );
+  }
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -101,7 +106,13 @@ export default function Profile() {
                 </div>
             </div>
 
-            <Outlet />
+            <Routes>
+                <Route path='/' element={<></>} />
+                <Route element={<PrivateRoutes isOwner={user.uid === profile.uid} username={username} />}>
+                    <Route path='edit' element={<EditProfile />} />
+                </Route>
+                <Route path='*' element={<Navigate to={'/profile/'+username} />} />
+            </Routes>
         </>
     );
 }

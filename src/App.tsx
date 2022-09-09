@@ -6,14 +6,12 @@ import SignUp from "./pages/SignUp/SignUp";
 import LogIn from "./pages/LogIn/LogIn";
 import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
-import EditProfile from "./pages/Profile/EditProfile";
-import Modal from "./components/Modal";
-import SignUpWrapper from "./pages/SignUp/SignUpWrapper";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { useDispatch, useSelector } from "react-redux";
-import { getProfile, getStatus, loadUserProfile } from "./store/UserSlice";
+import { getIsNewUser, getProfile, getStatus, loadUserProfile } from "./store/UserSlice";
 import { AppDispatch } from "./store/store";
+import CreateProfile from "./pages/Create/CreateProfile";
 
 function LoggedInRoutes() {
   const status = useSelector(getStatus);
@@ -22,7 +20,7 @@ function LoggedInRoutes() {
 
 function LoggedOutRoutes() {
   const status = useSelector(getStatus);
-  return ( status === 'idle' ? <Outlet /> : <Navigate to='/' /> );
+  return ( status !== 'success' ? <Outlet /> : <Navigate to='/' /> );
 }
 
 const Container = styled.div`
@@ -48,6 +46,7 @@ export default function App() {
 
   // on mount, load user in session
   useEffect(() => {
+    console.log('app mount');
     const signedin = localStorage.getItem("signedin");
     if(signedin)
       dispatch(loadUserProfile(signedin)).then(() => setLoading(false));
@@ -58,16 +57,18 @@ export default function App() {
   return (
     <BrowserRouter>
       {!loading && <>
+        {console.log('render')}
         <Nav />
         <Container>
           <Routes>
             <Route path='/' element={<Home />} />
-            <Route path='/profile/:username' element={<Profile />}>
-              <Route path='edit' element={<EditProfile />} />
-            </Route>
+            <Route path='/profile/:username/*' element={<Profile />} />
             <Route element={<LoggedOutRoutes />}>
-              <Route path='/signup' element={<SignUpWrapper />} />
+              <Route path='/signup' element={<SignUp />} />
               <Route path='/login' element={<LogIn />} />
+            </Route>
+            <Route element={<LoggedInRoutes />}>
+              <Route path='/create' element={<CreateProfile />} />
             </Route>
             <Route path='*' element={<>404 NOT FOUND</>} />
           </Routes>

@@ -5,16 +5,19 @@ import Button from "../../components/Button";
 import Card from "../../components/Card";
 import Input from "../../components/Input";
 import { AppDispatch } from "../../store/store";
-import { getError, getProfile, getStatus, googleSignIn, resetError, userSignUp } from "../../store/UserSlice";
+import { getError, getIsNewUser, getProfile, getStatus, googleSignIn, resetError, userSignUp } from "../../store/UserSlice";
 import { debounce } from 'lodash';
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { test } from "../../store/UserThunks";
 
 export default function SignUp() {
+    const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const status = useSelector(getStatus);
     const error = useSelector(getError);
+    const isNewUser = useSelector(getIsNewUser);
 
     // on mount
     useEffect(() => {
@@ -22,7 +25,7 @@ export default function SignUp() {
             dispatch(resetError());
     }, []);
 
-    const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const target = e.target as typeof e.target & {
           form: {
@@ -37,25 +40,26 @@ export default function SignUp() {
             confirmPassword: target.form.confirmPassword.value
         };
 
-        dispatch(userSignUp(info));
+        dispatch(userSignUp(info))
+            .then((action) => {
+                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser) //quick fix to handle new user
+                    navigate('/create');
+            });
     }
 
     // have to call popup here or else redirects path
     const handleGoogleSignUp = (e: Event) => {
         e.preventDefault();
-        const provider = new GoogleAuthProvider();
-
-        signInWithPopup(auth, provider)
-            .then(async (cred) => {
-                await dispatch(googleSignIn(cred));
-            })
-            .catch((err) => {
-                console.log(err);
+        dispatch(googleSignIn())
+            .then((action) => {
+                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser) //quick fix to handle new user
+                    navigate('/create');
             });
     }
 
     return (
         <div className="w-full max-w-sm">
+            <>{console.log('sign render')}</>
             <h1 className="text-2xl font-bold mb-2">Create an Account</h1>
             <Card>
                 <form>
