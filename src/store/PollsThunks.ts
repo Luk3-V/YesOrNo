@@ -1,11 +1,29 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addDoc, arrayRemove, collection, deleteDoc, doc, FieldValue, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch } from "firebase/firestore";
+import { addDoc, arrayRemove, collection, deleteDoc, doc, FieldValue, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import { PollState } from "./PollsSlice";
 
 
 export const loadAllPolls = createAsyncThunk('polls/loadAllPolls', async (_, { rejectWithValue }) => {
     const pollsQuery = query(collection(db, "polls"), orderBy("createdAt", "desc"), limit(10));
+    const result = await getDocs(pollsQuery)
+        .then((docs) => {
+            let polls:Array<any> = [];
+            docs.forEach((doc) => polls.push({
+                ...doc.data(),
+                pollID: doc.id
+            }));
+            return polls;
+        })
+        .catch((error) => {
+            console.log(error);
+            return rejectWithValue(error.message);
+        });
+    return result;
+});
+
+export const loadFollowingPolls = createAsyncThunk('polls/loadFollowingPolls', async (followers: Array<string>, { rejectWithValue }) => {
+    const pollsQuery = query(collection(db, "polls"), orderBy("createdAt", "desc"), where('uid', 'in', followers), limit(10)); // inefficient at large amount of posts to query
     const result = await getDocs(pollsQuery)
         .then((docs) => {
             let polls:Array<any> = [];

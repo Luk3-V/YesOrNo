@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Timestamp } from "firebase/firestore";
-import { addPollVote, deletePoll, loadAllPolls } from "./PollsThunks";
+import { addPollVote, deletePoll, loadAllPolls, loadFollowingPolls } from "./PollsThunks";
 
 export interface PollState {
     pollID: string,
@@ -29,6 +29,9 @@ const pollsSlice = createSlice({
         builder.addCase(loadAllPolls.fulfilled, (state, action) => {
             state.all = action.payload;
         })
+        .addCase(loadFollowingPolls.fulfilled, (state, action) => {
+            state.following = action.payload;
+        })
         .addCase(deletePoll.fulfilled, (state, action) => {
             const newPolls = state.all.filter((x) => x.pollID !== action.payload);
             state.all = newPolls;
@@ -42,7 +45,7 @@ const pollsSlice = createSlice({
     }
 });
 
-export { loadAllPolls, deletePoll, addPollVote };
+export { loadAllPolls, deletePoll, addPollVote, loadFollowingPolls };
 export const getAllPolls = (state: any) => state.polls.all;
 export const getFollowingPolls = (state: any) => state.polls.following;
 export default pollsSlice.reducer;

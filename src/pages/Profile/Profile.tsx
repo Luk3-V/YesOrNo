@@ -5,8 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
+import Feed from "../../components/Feed";
 import MenuItem from "../../components/MenuItem";
 import Poll from "../../components/Poll";
+import Spinner from "../../components/Spinner";
 import { PollState } from "../../store/PollsSlice";
 import { AppDispatch } from "../../store/store";
 import { addUserFollow, deleteUserFollow, getProfile, initialState, UserState } from "../../store/UserSlice";
@@ -24,25 +26,62 @@ export default function Profile() {
     const { username } = useParams();
     const [user, setUser] = useState<UserState["profile"]>();
     const [userPolls, setUserPolls] = useState<PollState[]>([]);
+    const [yesPolls, setYesPolls] = useState<PollState[]>([]);
+    const [noPolls, setNoPolls] = useState<PollState[]>([]);
+    const [filter, setFilter] = useState('user');
     const createdDate = new Date(profile.createdAt);
     const [isFollowing, setIsFollowing] = useState(false);
+
+    const [loadingUser, setLoadingUser] = useState(true);
+    const [loadingPolls, setLoadingPolls] = useState(true);
 
     useEffect(() => {
         (async () => {
             const uid = await getUserID(username as string);
-            const result = await getUserProfile(uid);
-            if(result) {
-                setUser(result);
-                setIsFollowing(result.followers.includes(profile.uid));
-                if(result.polls.length) {
-                    const polls = await getUserPolls(result.polls);
-                    setUserPolls(polls);
-                } else {
-                    setUserPolls([]);
+            if(uid) {
+                const result = await getUserProfile(uid);
+                if(result) {
+                    setUser(result);
+                    setIsFollowing(result.followers.includes(profile.uid));
+                    setLoadingUser(false);
                 }
             }
         })();
     }, [username, profile]);
+    useEffect(() => {
+        (async () => {
+            if(user) {
+                console.log('loading polls');
+                setLoadingPolls(true);
+                if(filter === 'user'){
+                    if(user.polls.length) {
+                        const polls = await getUserPolls(user.polls);
+                        setUserPolls(polls);
+                    } else {
+                        setUserPolls([]);
+                    }
+                }
+                if(filter === 'yes'){
+                    if(user.yesVotes.length) {
+                        const polls = await getUserPolls(user.yesVotes);
+                        setYesPolls(polls);
+                    } else {
+                        setYesPolls([]);
+                    }
+                }
+                if(filter === 'no'){
+                    if(user.noVotes.length) {
+                        const polls = await getUserPolls(user.noVotes);
+                        setNoPolls(polls);
+                    } else {
+                        setNoPolls([]);
+                    }
+                }
+                console.log('polls done');
+                setLoadingPolls(false); 
+            }
+        })();
+    }, [filter, user])
 
     const handleFollow = () => {
         if(user?.uid && !isFollowing)
@@ -50,6 +89,9 @@ export default function Profile() {
         else if(user?.uid && isFollowing)
             dispatch(deleteUserFollow({follower: profile.uid, following: user.uid}));
     }
+
+    if(loadingUser)
+        return (<Spinner loading={(loadingUser)} />);
 
     if(!user)
         return (<>User not found.</>);
@@ -91,16 +133,14 @@ export default function Profile() {
 
                 <div className="flex mt-8">
                     <div className="grow pr-3">
-                        {userPolls ? userPolls.map((poll) => 
-                            <Poll key={poll.pollID} data={poll} className="mb-6"/>
-                        ) : <></>}
+                        <Feed polls={filter === 'user' ? userPolls : (filter === 'yes' ? yesPolls : noPolls)} loading={loadingPolls} />
                     </div>
                     <div>
                         <Card size="sm" className="w-52">
-                            <MenuItem icon={<FaPoll />}>Polls</MenuItem>
+                            <MenuItem icon={<FaPoll />} onClick={() => setFilter('user')}>Polls</MenuItem>
                             <div className='block border-b border-gray-300 my-2'></div>
-                            <MenuItem icon={<IoMdThumbsUp />}>Yes Votes</MenuItem>
-                            <MenuItem icon={<IoMdThumbsDown />}>No Votes</MenuItem>
+                            <MenuItem icon={<IoMdThumbsUp />} onClick={() => setFilter('yes')}>Yes Votes</MenuItem>
+                            <MenuItem icon={<IoMdThumbsDown />} onClick={() => setFilter('no')}>No Votes</MenuItem>
                         </Card>
                     </div>
                 </div>
