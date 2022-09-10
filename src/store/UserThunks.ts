@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, getAdditionalUserInfo, UserCredential, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove, updateDoc } from 'firebase/firestore';
 
 import { auth, db } from "../firebase";
 import { initialState, UserState } from './UserSlice';
@@ -14,12 +14,13 @@ export const test = createAsyncThunk('user/test', async (_, { rejectWithValue } 
 // TODO DONT MAKE ACCOUNT IF FAILED TO ADD DATABASE
 interface signUpInfo {email: string, password: string, confirmPassword: string};
 export const userSignUp = createAsyncThunk('user/signup', async ({email, password, confirmPassword}: signUpInfo, { rejectWithValue } ) => {
-    console.log('signing up');
     if(!email)
       return rejectWithValue('Please enter email');
+    if(!password)
+      return rejectWithValue('Please enter password');
     if(password !== confirmPassword)
       return rejectWithValue('Passwords do not match');
-    console.log('2');
+
     const result = await createUserWithEmailAndPassword(auth, email, password)
       .then(async (cred) => {
         const user = {
@@ -49,6 +50,11 @@ export const userSignUp = createAsyncThunk('user/signup', async ({email, passwor
 });
 
 export const userSignIn = createAsyncThunk('user/signin', async ({email, password}: {email: string, password: string}, { rejectWithValue } ) => {
+    if(!email)
+      return rejectWithValue('Please enter email');
+    if(!password)
+      return rejectWithValue('Please enter password');
+
     const result = await signInWithEmailAndPassword(auth, email, password)
       .then(async (cred) => {
         const user = {
@@ -112,24 +118,17 @@ export const googleSignIn = createAsyncThunk('user/googleSignIn', async (_, { re
 export const updateUserProfile = createAsyncThunk('user/updateProfile', async (newInfo: {name: string, bio: string, image: string}, { rejectWithValue, getState }) => {
     const rootState = getState() as {user: UserState};
     const profile = rootState.user.profile;
-    const newProfile = {
-      ...profile,
-      name: newInfo.name,
-      bio: newInfo.bio,
-      image: newInfo.image
-    };
 
     const batch = writeBatch(db);
-    const userRef = doc(db, "users", newProfile.uid as string );
-    batch.set(userRef, newProfile);
-    if(profile.name && profile.name !== newProfile.name) {
+    const userRef = doc(db, "users", profile.uid as string );
+    batch.update(userRef, newInfo);
+    if(profile.name && profile.name !== newInfo.name) {
       batch.delete(doc(db, "usernames", profile.name)); 
-      batch.set(doc(db, "usernames", newProfile.name), {uid: profile.uid});
+      batch.set(doc(db, "usernames", newInfo.name), {uid: profile.uid});
     }
     const result = await batch.commit()
       .then(() => {
-          console.log("Document has been added successfully");
-          return newProfile;
+          return newInfo;
       })
       .catch(error => {
           console.log(error);
@@ -157,15 +156,10 @@ export const deleteUserProfile = createAsyncThunk('user/deleteProfile', async (u
 export const addUserPollID = createAsyncThunk('user/addUserPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
-  const newProfile = {
-    ...profile,
-    polls: [pollID, ...profile.polls]
-  }
 
-  const userRef = doc(db, "users", newProfile.uid as string );
-  const result = await setDoc(userRef, newProfile)
+  const userRef = doc(db, "users", profile.uid as string );
+  const result = await updateDoc(userRef, { polls: [pollID, ...profile.polls] })
     .then(() => {
-      console.log("Document updated successfully");
       return pollID;
     })
     .catch(error => {
@@ -178,16 +172,10 @@ export const addUserPollID = createAsyncThunk('user/addUserPollID', async (pollI
 export const deleteUserPollID = createAsyncThunk('user/deleteUserPollID', async (pollID: string, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
-  const newProfile = {
-    ...profile,
-    polls: profile.polls.filter((x) => x !== pollID)
-  }
-  console.log(pollID, newProfile.polls)
 
-  const userRef = doc(db, "users", newProfile.uid as string );
-  const result = await setDoc(userRef, newProfile)
+  const userRef = doc(db, "users", profile.uid as string );
+  const result = await updateDoc(userRef, { polls: profile.polls.filter((x) => x !== pollID) })
     .then(() => {
-      console.log("Document updated successfully");
       return pollID;
     })
     .catch(error => {
@@ -200,17 +188,15 @@ export const deleteUserPollID = createAsyncThunk('user/deleteUserPollID', async 
 export const addUserVote = createAsyncThunk('user/addUserVote', async ({vote, pollID}: {vote: string, pollID: string}, { rejectWithValue, getState }) => {
   const rootState = getState() as {user: UserState};
   const profile = rootState.user.profile;
-  const newProfile = {
-    ...profile,
+  const newData = {
     yesVotes: vote === 'yes' ? [pollID, ...profile.yesVotes] : profile.yesVotes,
     noVotes: vote === 'no' ? [pollID, ...profile.noVotes] : profile.noVotes
   }
 
-  const userRef = doc(db, "users", newProfile.uid as string );
-  const result = await setDoc(userRef, newProfile)
+  const userRef = doc(db, "users", profile.uid as string );
+  const result = await updateDoc(userRef, newData)
     .then(() => {
-      console.log("Document updated successfully");
-      return newProfile;
+      return newData;
     })
     .catch(error => {
         console.log(error);
@@ -225,7 +211,6 @@ export const addUserFollow = createAsyncThunk('user/addUserFollow', async ({foll
   batch.update(doc(db, "users", following), {followers: arrayUnion(follower)})
   const result = await batch.commit()
     .then(() => {
-      console.log("Document updated successfully");
       return following;
     })
     .catch(error => {
@@ -241,7 +226,6 @@ export const deleteUserFollow = createAsyncThunk('user/deleteUserFollow', async 
   batch.update(doc(db, "users", following), {followers: arrayRemove(follower)})
   const result = await batch.commit()
     .then(() => {
-      console.log("Document updated successfully");
       return following;
     })
     .catch(error => {

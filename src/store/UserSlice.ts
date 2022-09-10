@@ -58,7 +58,6 @@ const userSlice = createSlice({
       state.error = undefined;
       state.profile = action.payload;
       state.isNewUser = true;
-      console.log(action.payload);
     })
     .addCase(userSignUp.rejected, (state, action) => {
       state.status = 'fail';
@@ -95,7 +94,9 @@ const userSlice = createSlice({
       state.error = action.payload as string;
     })
     .addCase(updateUserProfile.fulfilled, (state, action) => {
-      state.profile = action.payload;
+      state.profile.name = action.payload.name;
+      state.profile.bio = action.payload.bio;
+      state.profile.image = action.payload.image;
     })
     .addCase(loadUserProfile.pending, (state, action) => {
       state.status = 'loading';
@@ -118,7 +119,8 @@ const userSlice = createSlice({
       console.log("POLL ID DELETED");
     })
     .addCase(addUserVote.fulfilled, (state, action) => {
-      state.profile = action.payload;
+      state.profile.yesVotes = action.payload.yesVotes;
+      state.profile.noVotes = action.payload.noVotes;
       console.log("VOTE ID ADDED");
     })
     .addCase(addUserFollow.fulfilled, (state, action) => {

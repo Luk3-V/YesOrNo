@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addDoc, arrayRemove, collection, deleteDoc, doc, FieldValue, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, writeBatch } from "firebase/firestore";
+import { addDoc, arrayRemove, collection, deleteDoc, doc, FieldValue, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import { PollState } from "./PollsSlice";
 
@@ -26,7 +26,11 @@ export const deletePoll = createAsyncThunk('polls/deletePoll', async (pollID: st
     console.log("RUN", pollID);
     const result = await getDoc(doc(db, "polls", pollID))
         .then(async (doc) => {
-            return await deletePollAndVotes(doc.data() as PollState, rejectWithValue);
+            const poll: any = {
+                ...doc.data(),
+                pollID: pollID
+            }
+            return await deletePollAndVotes(poll, rejectWithValue);
         })
         .catch((error) => {
             console.log(error);
@@ -37,14 +41,17 @@ export const deletePoll = createAsyncThunk('polls/deletePoll', async (pollID: st
 // get last doc value
 
 export const addPollVote = createAsyncThunk('polls/addPollVote', async ({vote, pollData, uid}: {vote: string, pollData: PollState, uid: string}, { rejectWithValue }) => {
-    const newPollData = { // includes pollID
-        ...pollData,
+    const updateData = {
         yesVotes: vote === 'yes' ? [uid, ...pollData.yesVotes] : pollData.yesVotes,
         noVotes: vote === 'no' ? [uid, ...pollData.noVotes] : pollData.noVotes
     }
-
-    const result = await setDoc(doc(db, "polls", pollData.pollID), newPollData)
+    
+    const result = await updateDoc(doc(db, "polls", pollData.pollID), updateData)
         .then(() => {
+            const newPollData = {
+                ...pollData,
+                ...updateData
+            }
             return newPollData;
         })
         .catch((error) => {
@@ -58,16 +65,17 @@ export const addPollVote = createAsyncThunk('polls/addPollVote', async ({vote, p
 // --------------------------------------------
 
 async function deletePollAndVotes(pollData: PollState, rejectWithValue: Function) {
+    console.log('delete', pollData)
     const batch = writeBatch(db);
     batch.delete(doc(db, "polls", pollData.pollID));
-    pollData.yesVotes.forEach((uid) => {
+    pollData.yesVotes.forEach((uid: string) => {
         const userRef = doc(db, "users", uid);
         batch.update(userRef, {
             yesVotes: arrayRemove(pollData.pollID)
         });
         console.log("found yes vote", uid);
     });
-    pollData.noVotes.forEach((uid) => {
+    pollData.noVotes.forEach((uid: string) => {
         const userRef = doc(db, "users", uid);
         batch.update(userRef, {
             noVotes: arrayRemove(pollData.pollID)
