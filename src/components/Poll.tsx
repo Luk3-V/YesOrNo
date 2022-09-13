@@ -87,39 +87,48 @@ export default function Poll(props: any) {
 
     return (
         <Card size='sm' className={props.className}>
-            <div className="mb-4 flex">
+            <div className="flex relative">
                 <img src={props.data.profileImage} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3 cursor-pointer" onClick={() => navigate("/profile/"+props.data.name)}/>
+                
                 <div className='grow'>
-                    <a className='text-lg font-medium cursor-pointer hover:underline' onClick={() => navigate("/profile/"+props.data.name)}>@{props.data.name}</a>
-                    <span className='block text-gray-500'>{fromnow(props.data.createdAt, { max:1, suffix:true })}</span>
+                    <div className='flex items-end'>
+                        <a className='text-lg font-medium cursor-pointer hover:underline mr-2' onClick={() => navigate("/profile/"+props.data.name)}>@{props.data.name}</a>
+                        <span className='leading-7 text-gray-500'>— {fromnow(props.data.createdAt, { max:1, suffix:true })}</span>
+                    </div>
+                    
+                    <div className='mb-4 flex items-end'>
+                        <span className='grow text-2xl'>{props.data.question}</span>
+                        <span className='text-gray-500'>{totalVotes === 1 ? totalVotes+' vote' : totalVotes+' votes'}</span>
+                    </div>
+                    {props.data.image && <div className="mb-4 w-full flex justify-center bg-gray-100 rounded">
+                        <img src={props.data.image} 
+                            alt="poll image" className="max-h-64"
+                        />
+                    </div>}
+
+                    {vote.length || (profile.uid && props.data.uid === profile.uid) ? 
+                    <div className="flex space-x-3">
+                        <PollResult percent={yesPercentage} winner={yesPercentage > noPercentage} vote={vote === 'yes'}>
+                            <span><IoMdThumbsUp className="text-xl inline-block mr-3 align-middle"/>Yes</span>
+                            <span>{yesPercentage}%</span> 
+                        </PollResult>
+                        <PollResult percent={noPercentage} winner={yesPercentage < noPercentage} vote={vote === 'no'}>
+                            <span><IoMdThumbsDown className="text-xl inline-block mr-3 align-middle"/>No</span>
+                            <span>{noPercentage}%</span>
+                        </PollResult>
+                    </div> :
+                    <div className="flex space-x-3">
+                        <Button onClick={() => handleVote('yes')} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>Yes</Button>
+                        <Button onClick={() => handleVote('no')} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>No</Button>
+                    </div>}
                 </div>
-                <div>
-                    {props.data.uid === profile.uid && 
-                    <Button onClick={() => setDeleteModal(true)} type='clear' size='sm' disabled={loading}>
-                        <FaTrashAlt className='text-xl text-gray-700 my-1'/>
-                    </Button>}
-                </div>
-            </div>
-            <div className='mb-4 flex'>
-                <span className='grow text-2xl'>{props.data.question}</span>
-                <span className='text-gray-500'>{totalVotes === 1 ? totalVotes+' vote' : totalVotes+' votes'}</span>
+
+                {props.data.uid === profile.uid && 
+                <Button onClick={() => setDeleteModal(true)} type='clear' size='sm' disabled={loading} className="absolute top-0 right-0">
+                    <FaTrashAlt className='text-xl text-gray-700 my-1'/>
+                </Button>}
             </div>
 
-            {vote.length || (profile.uid && props.data.uid === profile.uid) ? 
-            <div className="flex space-x-3">
-                <PollResult percent={yesPercentage} winner={yesPercentage > noPercentage} vote={vote === 'yes'}>
-                    <span><IoMdThumbsUp className="text-xl inline-block mr-3 align-middle"/>Yes</span>
-                    <span>{yesPercentage}%</span> 
-                </PollResult>
-                <PollResult percent={noPercentage} winner={yesPercentage < noPercentage} vote={vote === 'no'}>
-                    <span><IoMdThumbsDown className="text-xl inline-block mr-3 align-middle"/>No</span>
-                    <span>{noPercentage}%</span>
-                </PollResult>
-            </div> :
-            <div className="flex space-x-3">
-                <Button onClick={() => handleVote('yes')} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>Yes</Button>
-                <Button onClick={() => handleVote('no')} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>No</Button>
-            </div>}
             
             {deleteModal && 
             <Modal>

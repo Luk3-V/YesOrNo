@@ -10,19 +10,16 @@ export async function checkNameTaken(name: string, uid: string, setIsValid: Func
     if (name.length >= 3) {
         const docRef = doc(db, "usernames", name);
         const docSnap = await getDoc(docRef);
-        console.log('Firestore read executed!', !docSnap.exists(), docSnap.data()?.uid === uid);
 
         setIsValid(!docSnap.exists() || docSnap.data()?.uid === uid);
     }
     setLoading(false);
 }
 
-export async function uploadProfileImg(file: File, uid: string, setLoading: Function) {
-    const fileRef = ref(storage, uid+'.png');
-    setLoading(true);
-    const fileSnap = await uploadBytes(fileRef, file);
+export async function uploadImg(file: File, name: string) {
+    const fileRef = ref(storage, name);
+    await uploadBytes(fileRef, file);
     const fileURL = await getDownloadURL(fileRef);
-    setLoading(false);
 
     return fileURL;
 }
