@@ -7,8 +7,6 @@ import { AppDispatch } from "../../store/store";
 import { getError, getIsNewUser, getStatus, googleSignIn, resetError, userSignIn } from "../../store/UserSlice";
 import { useNavigate } from 'react-router-dom';
 import Card from "../../components/Card";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../firebase";
 
 export default function LogIn() {
     const navigate = useNavigate();
@@ -56,13 +54,13 @@ export default function LogIn() {
             <Card>
                 <form>
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="email">
                             Email
                         </label>
                         <Input id="email" type="email" placeholder="example@gmail.com" />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="password">
                             Password
                         </label>
                         <Input id="password" type="password" placeholder="************" />
@@ -79,11 +77,11 @@ export default function LogIn() {
                         </Button>
                         <span className="text-sm">
                             Dont have an account?
-                            <Link className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800 ml-1" to="/signup">
+                            <Link className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800 dark:hover:text-blue-400 ml-1" to="/signup">
                                 Sign Up
                             </Link>
                         </span>
-                        {status === 'fail' && <span className="w-full text-sm text-center p-2 mt-2 border border-solid rounded-md border-red-300 bg-red-100">{error}</span>}
+                        {status === 'fail' && <span className="w-full text-sm text-center p-2 mt-2 border border-solid rounded-md border-red-300 dark:border-red-500 bg-red-100 dark:bg-red-950">{error}</span>}
                     </div>
                 </form>
             </Card>

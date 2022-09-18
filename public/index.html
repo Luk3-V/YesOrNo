@@ -25,10 +25,24 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <style type="text/css">
+      body {
+        background-color: hwb(220 94% 4%);
+      }
+    
+      body.dark {
+        background-color: #18181b;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <div id="modal_root"></div>
+    <script type="module">
+      const darkMode = localStorage.getItem("dark");
+      if(darkMode)
+          document.body.classList.add('dark');
+    </script>
   </body>
 </html>

@@ -75,20 +75,20 @@ export default function CreatProfile() {
             <Card>
                 <form>
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="name">
                             Username
                         </label>
                         <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} error={!nameValid} />
                         {!nameValid && <span className='text-sm text-red-600'>Invalid Username</span>}
                     </div>
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="bio">
                             Bio
                         </label>
                         <Input id="bio" type="textarea" rows="3" maxlength="100" />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
+                        <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="image">
                             Profile Image
                         </label>
                         <div className="flex items-end relative">
@@ -109,10 +109,3 @@ export default function CreatProfile() {
         </div>
     )
 }
-
-// sign up -> creates user 
-// generates temp username & default profile
-// stores in users & username DB
-// open creat profile form
-// form w/ username, pic & bio
-// then updates user doc & replaces username doc

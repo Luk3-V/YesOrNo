@@ -8,6 +8,6 @@ const spinnerStyle: CSSProperties = {
 
 export default function Spinner(props: any) {
   return (
-    <ClipLoader color={'#36d7b7'} loading={props.loading} cssOverride={spinnerStyle} size={50} />
+    <ClipLoader color={'#3b82f6'} loading={props.loading} cssOverride={spinnerStyle} size={50} />
   )
 }

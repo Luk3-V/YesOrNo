@@ -2,20 +2,21 @@ import styled from "styled-components";
 import { useNavigate } from 'react-router-dom';
 
 import Button from "./Button";
-import { useDispatch, useSelector } from "react-redux";
-import { getProfile, getStatus, userSignOut } from "../store/UserSlice";
-import { AppDispatch } from "../store/store";
-import { useEffect, useRef, useState } from "react";
-import { FaBell, FaPoll } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { getProfile, getStatus } from "../store/UserSlice";
+import { useRef, useState } from "react";
+import { FaBell, FaHome } from "react-icons/fa";
 import Dropdown from "./Dropdown";
 import { MdThumbsUpDown } from "react-icons/md";
 
 const NavWrapper = styled.div`
     position: fixed;
     width: 100%;
-    z-index: 2;
-    padding: 0 20px;
-    background-color: white;
+    z-index: 100;
+    padding: 0 30px 0 20px;
+    @media only screen and (hover: none) and (pointer: coarse){
+        padding: 0 20px;
+    }
 `;
 
 const NavDiv = styled.div`
@@ -47,14 +48,16 @@ export default function Nav() {
     document.addEventListener('mousedown', close);
 
     return (
-        <NavWrapper className="shadow-sm">
+        <NavWrapper className="shadow bg-white dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
             <NavDiv>
                 <a onClick={() => navigate('/')} className="flex items-center text-2xl font-medium text-primary cursor-pointer"><MdThumbsUpDown className="text-3xl mr-2"/>YesOrNo</a>
                 <div>
                     {status === 'success' ? <>
-                        <Button onClick={() => {}}>Create Poll</Button>
-                        <Button onClick={() => {}} type="clear">
-                            <FaBell className="text-2xl inline-block"/>
+                        <Button onClick={() => {navigate('/')}} type="circle">
+                            <FaHome className="text-2xl inline-block m-2"/>
+                        </Button>
+                        <Button onClick={() => {}} type="circle">
+                            <FaBell className="text-2xl inline-block m-2"/>
                         </Button>
                         <Button onClick={() => setOpen(!open)} type="circle" ref={buttonRef}>
                             <img className="inline-block w-10 h-10 rounded-full" src={profile.image}/>

@@ -9,5 +9,17 @@
 }
 
 body {
-    background-color: whitesmoke;
+    background-color: hwb(220 94% 4%);
+    color: #171717;
+    overflow-y: overlay;
+    --scrollbar-width: calc(100vw - 100%);
+}
+body.dark {
+    background-color: #18181b;
+    color: #fafafa;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
 }

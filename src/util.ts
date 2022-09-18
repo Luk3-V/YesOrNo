@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, documentId, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useSelector } from "react-redux";
 import { db, storage } from "./firebase";
@@ -50,10 +50,10 @@ export async function getUserProfile(uid: string) {
     return result;
 }
 
-export async function createPoll(question: string, image: string | null, profile: UserState["profile"]) {
+export async function createPoll(question: string, image: File | null, profile: UserState["profile"]) {
     const pollData = {
         question: question,
-        image: image,
+        image: null,
         uid: profile.uid,
         name: profile.name,
         profileImage: profile.image,
@@ -63,8 +63,13 @@ export async function createPoll(question: string, image: string | null, profile
     } 
     
     const result = await addDoc(collection(db, "polls"), pollData)
-        .then((doc) => {
-            return doc.id;
+        .then(async (poll) => {
+            if(image) {
+                const imageURL = image ? await uploadImg(image as File, poll.id) : null;
+                await updateDoc(doc(db, "polls", poll.id), { image: imageURL })
+            }
+
+            return poll.id;
         })
         .catch((error) => {
             console.log(error);
@@ -82,7 +87,9 @@ export async function getUserPolls(polls: Array<string>) {
                 ...doc.data(),
                 pollID: doc.id
             }));
-            return polls;
+            return polls.sort((p1, p2) => {
+                return Date.parse(p1.createdAt) < Date.parse(p2.createdAt) ? 1 : -1;
+            });
         })
         .catch((error) => {
             console.log(error);

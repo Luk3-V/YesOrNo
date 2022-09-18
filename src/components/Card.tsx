@@ -1,4 +1,4 @@
-import { forwardRef, Ref } from "react";
+import { forwardRef } from "react";
 
 type Props = {
     children?: React.ReactNode;
@@ -7,7 +7,7 @@ type Props = {
 };
 
 const Card = forwardRef((props: Props, ref: any) => {
-    let style = "bg-white shadow-md rounded-md";
+    let style = "shadow-sm rounded-md border bg-white dark:bg-neutral-800 border-gray-300 dark:border-neutral-700 ";
 
     if(props.size === 'sm')
         style += " px-4 py-4";

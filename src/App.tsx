@@ -9,7 +9,7 @@ import Profile from "./pages/Profile/Profile";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsNewUser, getProfile, getStatus, loadUserProfile } from "./store/UserSlice";
+import { getStatus, loadUserProfile } from "./store/UserSlice";
 import { AppDispatch } from "./store/store";
 import CreateProfile from "./pages/Create/CreateProfile";
 
@@ -24,16 +24,19 @@ function LoggedOutRoutes() {
 }
 
 const Container = styled.div`
-  padding-top: 6rem;
-  max-width: 900px;
   margin: auto;
   display: flex;
   justify-content: center;
+
+  padding: 6rem 30px 0 20px;
+  max-width: 900px;
+  @media only screen and (hover: none) and (pointer: coarse){
+    padding: 6rem 20px 0 20px;
+  }
 `;
 
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
-  const profile = useSelector(getProfile);
 
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +60,6 @@ export default function App() {
   return (
     <BrowserRouter>
       {!loading && <>
-        {console.log('render')}
         <Nav />
         <Container>
           <Routes>

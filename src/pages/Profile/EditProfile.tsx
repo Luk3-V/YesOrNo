@@ -2,16 +2,12 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
 import Button from "../../components/Button";
-import Card from "../../components/Card";
 import Input from "../../components/Input";
 import Modal from "../../components/Modal";
 import { AppDispatch } from "../../store/store";
 import { getProfile, updateUserProfile } from "../../store/UserSlice";
 import { checkNameTaken, uploadImg } from "../../util";
-import Profile from "./Profile";
-import {CgClose} from "react-icons/cg";
 import {IoClose} from "react-icons/io5"
 
 export default function EditProfile() {
@@ -83,23 +79,23 @@ export default function EditProfile() {
             <form>
                 <div className="flex justify-between mb-6">
                     <span className="text-2xl font-semibold">Edit Profile</span>
-                    <Button type="clear" size='sm' className="text-2xl text-black" onClick={() => navigate('/profile/'+profile.name)}><IoClose /></Button>
+                    <Button type="clear" size='sm' className="text-2xl" onClick={() => navigate('/profile/'+profile.name)}><IoClose /></Button>
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                    <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="name">
                         Username
                     </label>
                     <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} error={!nameValid} />
                     {!nameValid && <span className='text-sm text-red-600'>Invalid Username</span>}
                 </div>
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">
+                    <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="bio">
                         Bio
                     </label>
                     <Input id="bio" type="textarea" rows="3" maxlength="100" value={bio} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBio(e.target.value)}/>
                 </div>
                 <div className="mb-6">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
+                    <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="image">
                         Profile Image
                     </label>
                     <div className="flex items-end relative">
@@ -114,7 +110,7 @@ export default function EditProfile() {
                     <Button className="w-full mb-3" disabled={!nameValid || !imageValid || loading} onClick={handleEditProfile} >
                         Save
                     </Button>
-                    <Button className="w-full text-red-500 border-red-500 hover:bg-red-50" type="outline" onClick={handleDelete} disabled={loading}>
+                    <Button className="w-full" type="warning" onClick={handleDelete} disabled={loading}>
                         Delete Account
                     </Button>
                 </div>

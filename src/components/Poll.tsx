@@ -1,14 +1,13 @@
 import fromnow from 'fromnow';
-import React, { useEffect, useState } from 'react'
-import { FaTrash, FaTrashAlt } from 'react-icons/fa';
-import { HiDotsHorizontal, HiOutlineTrash, HiTrash } from 'react-icons/hi';
+import { useEffect, useState } from 'react'
+import { FaRegCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import { IoMdThumbsDown, IoMdThumbsUp } from 'react-icons/io'
 import { IoClose } from 'react-icons/io5';
+import { MdOutlineHowToVote } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
-import { PollState } from '../store/PollsSlice';
-import { addPollVote, deletePoll, loadAllPolls } from '../store/PollsSlice';
+import styled from 'styled-components';
+import { addPollVote, deletePoll } from '../store/PollsSlice';
 import { AppDispatch } from '../store/store';
 import { deleteUserPollID, getProfile, addUserVote } from '../store/UserSlice';
 import { percentage } from '../util';
@@ -32,10 +31,10 @@ const Bar = styled.span`
 
 function PollResult(props: any) {
     return (
-        <div className={'relative w-1/2 font-bold text-gray-700  overflow-hidden ' }>
-            <span className={"absolute block h-10 w-full z-10 rounded " + (props.vote ? "border-2 border-blue-500" : "border border-gray-500")}></span>
-            <Bar className={"absolute block h-10 rounded " + (props.winner ? "bg-blue-200" : "bg-grey-300")} style={{width: props.percent+'%'}}></Bar>
-            <div className="relative flex justify-between py-2 px-4 z-20">
+        <div className={'relative font-bold text-gray-700 overflow-hidden sm:w-1/2 ' }>
+            <span className={"absolute block h-10 w-full z-10 rounded border " + (props.winner ? (props.value === 'yes' ? "border-emerald-200 dark:border-emerald-800" : "border-rose-200 dark:border-rose-800") : "border-gray-300 dark:border-neutral-600")}></span>
+            <Bar className={"absolute block h-10 rounded " + (props.winner ? (props.value === 'yes' ? "bg-emerald-100 dark:bg-emerald-950" : "bg-rose-100 dark:bg-rose-950") : "bg-gray-200 dark:bg-neutral-700")} style={{width: props.percent+'%'}}></Bar>
+            <div className={"relative flex justify-between py-2 px-4 z-10 " + (props.winner ? (props.value === 'yes' ? "text-emerald-500" : "text-rose-500") : "text-gray-500 dark:text-neutral-400")}>
                 {props.children}
             </div>
         </div>
@@ -88,44 +87,50 @@ export default function Poll(props: any) {
     return (
         <Card size='sm' className={props.className}>
             <div className="flex relative">
-                <img src={props.data.profileImage} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3 cursor-pointer" onClick={() => navigate("/profile/"+props.data.name)}/>
+                <img src={props.data.profileImage} alt="" className="w-12 h-12 rounded-full shadow mr-3 cursor-pointer" onClick={() => navigate("/profile/"+props.data.name)}/>
                 
                 <div className='grow'>
                     <div className='flex items-end'>
                         <a className='text-lg font-medium cursor-pointer hover:underline mr-2' onClick={() => navigate("/profile/"+props.data.name)}>@{props.data.name}</a>
-                        <span className='leading-7 text-gray-500'>— {fromnow(props.data.createdAt, { max:1, suffix:true })}</span>
+                        <span className='leading-7 text-gray-500 dark:text-neutral-400'>— {fromnow(props.data.createdAt, { max:1, suffix:true })}</span>
                     </div>
                     
-                    <div className='mb-4 flex items-end'>
+                    <div className='mb-4 flex items-end mt-1'>
                         <span className='grow text-2xl'>{props.data.question}</span>
-                        <span className='text-gray-500'>{totalVotes === 1 ? totalVotes+' vote' : totalVotes+' votes'}</span>
+                        <span className='text-gray-500 dark:text-neutral-400'><MdOutlineHowToVote className="inline-block mr-1 align-middle" />{totalVotes === 1 ? totalVotes+' vote' : totalVotes+' votes'}</span>
                     </div>
-                    {props.data.image && <div className="mb-4 w-full flex justify-center bg-gray-100 rounded">
+                    {props.data.image && <div className="mb-4 w-full flex justify-center bg-gray-50 dark:bg-neutral-750 rounded">
                         <img src={props.data.image} 
                             alt="poll image" className="max-h-64"
                         />
                     </div>}
 
                     {vote.length || (profile.uid && props.data.uid === profile.uid) ? 
-                    <div className="flex space-x-3">
-                        <PollResult percent={yesPercentage} winner={yesPercentage > noPercentage} vote={vote === 'yes'}>
-                            <span><IoMdThumbsUp className="text-xl inline-block mr-3 align-middle"/>Yes</span>
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                        <PollResult percent={yesPercentage} winner={yesPercentage > noPercentage} value={'yes'}>
+                            <span><IoMdThumbsUp className="text-xl inline-block mr-3 align-middle"/>Yes{vote === 'yes' && <FaRegCheckCircle className="text-sm inline-block ml-2 align-middle"/>}</span>
                             <span>{yesPercentage}%</span> 
                         </PollResult>
-                        <PollResult percent={noPercentage} winner={yesPercentage < noPercentage} vote={vote === 'no'}>
-                            <span><IoMdThumbsDown className="text-xl inline-block mr-3 align-middle"/>No</span>
+                        <PollResult percent={noPercentage} winner={yesPercentage < noPercentage} value={'no'}>
+                            <span><IoMdThumbsDown className="text-xl inline-block mr-3 align-middle"/>No{vote === 'no' && <FaRegCheckCircle className="text-sm inline-block ml-2 align-middle"/>}</span>
                             <span>{noPercentage}%</span>
                         </PollResult>
                     </div> :
-                    <div className="flex space-x-3">
-                        <Button onClick={() => handleVote('yes')} type="outline" className='grow' icon={<IoMdThumbsUp />} disabled={loading}>Yes</Button>
-                        <Button onClick={() => handleVote('no')} type="outline" className='grow' icon={<IoMdThumbsDown />} disabled={loading}>No</Button>
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                        <Button onClick={() => handleVote('yes')} type="outline" className='grow text-emerald-700 dark:text-emerald-400 border-emerald-700 dark:border-emerald-400 bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900' 
+                        icon={<IoMdThumbsUp />} disabled={loading}>
+                            Yes
+                        </Button>
+                        <Button onClick={() => handleVote('no')} type="outline" className='grow text-rose-700 dark:text-rose-400 border-rose-700 dark:border-rose-400 bg-rose-100 dark:bg-rose-950 hover:bg-rose-200 dark:hover:bg-rose-900' 
+                        icon={<IoMdThumbsDown />} disabled={loading}>
+                            No
+                        </Button>
                     </div>}
                 </div>
 
                 {props.data.uid === profile.uid && 
                 <Button onClick={() => setDeleteModal(true)} type='clear' size='sm' disabled={loading} className="absolute top-0 right-0">
-                    <FaTrashAlt className='text-xl text-gray-700 my-1'/>
+                    <FaTrashAlt className='text-lg text-gray-700 dark:text-gray-200 my-1'/>
                 </Button>}
             </div>
 
@@ -141,7 +146,7 @@ export default function Poll(props: any) {
                     <Button onClick={() => setDeleteModal(false)} className="grow" type="outline">
                         Cancel
                     </Button>
-                    <Button onClick={handleDelete} className="grow text-red-500 border-red-500 hover:bg-red-50" type="outline">
+                    <Button onClick={handleDelete} className="grow" type="warning">
                         Delete
                     </Button>
                 </div>

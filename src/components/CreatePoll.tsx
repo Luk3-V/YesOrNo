@@ -1,15 +1,13 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { FaSmile, FaTrashAlt } from 'react-icons/fa'
-import { IoMdText } from 'react-icons/io'
+import { FaTrashAlt } from 'react-icons/fa'
 import { IoImageSharp } from 'react-icons/io5'
-import { HiEmojiHappy } from 'react-icons/hi'
+import { MdEmojiEmotions } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { addUserPollID, getProfile } from '../store/UserSlice'
 import Button from './Button'
 import Input from './Input'
-import MenuItem from './MenuItem'
 import { AppDispatch } from '../store/store'
-import { createPoll, uploadImg } from '../util'
+import { createPoll } from '../util'
 import Card from './Card'
 import { loadAllPolls } from '../store/PollsThunks'
 
@@ -56,9 +54,7 @@ export default function CreatePoll() {
     const handleCreatePoll = async () => {
         setLoading(true);
 
-        const imageURL = image ? await uploadImg(image as File, profile.uid) : null;
-
-        const pollID = await createPoll(question, imageURL, profile);
+        const pollID = await createPoll(question, image ? image : null, profile);
         if(pollID) {
             dispatch(addUserPollID(pollID));
             dispatch(loadAllPolls());
@@ -70,14 +66,14 @@ export default function CreatePoll() {
 
 
     return (
-        <Card size="sm" className='mb-10'>
+        <Card size="sm" className='mb-6'>
             <div className="flex">
-                <img src={profile.image} alt="" className="w-12 h-12 rounded-full shadow-sm mr-3"/>
+                <img src={profile.image} alt="" className="w-12 h-12 rounded-full shadow mr-3"/>
                 <div className="grow">
                     <Input id="question" type="text" placeholder="Ask the world a question..." value={question} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuestion(e.target.value)}/>
-                    {image && <div className="mt-3 w-full flex justify-center bg-gray-100 rounded relative">
+                    {image && <div className="mt-3 w-full flex justify-center bg-gray-50 dark:bg-neutral-750 rounded relative">
                         <Button onClick={() => setImage(null)} type='clear' size='sm' className='absolute top-2 right-2'>
-                            <FaTrashAlt className='text-xl text-gray-700 my-1'/>
+                            <FaTrashAlt className='text-lg text-gray-700 dark:text-gray-50 my-1'/>
                         </Button>
                          <img src={URL.createObjectURL(image)} 
                             alt="poll image" className="max-h-64"
@@ -85,19 +81,16 @@ export default function CreatePoll() {
                     </div>}
                 </div>
             </div>
-            <div className='block border-b border-gray-300 my-4'></div>
+            <div className='block border-b border-gray-300 dark:border-neutral-600 my-4'></div>
             <div className="flex justify-between">
                 <div className="flex">
                     <Button onClick={handleImageClick} size="sm" type="clear" className='mr-3'><IoImageSharp className='text-2xl'/></Button>
-                    <Button onClick={() => {}} size="sm" type="clear" className='mr-3'><HiEmojiHappy className='text-2xl'/></Button>
+                    <Button onClick={() => {}} size="sm" type="clear" className='mr-3'><MdEmojiEmotions className='text-2xl'/></Button>
                 </div>
                 <Button onClick={handleCreatePoll} disabled={!textValid || loading}>Poll It!</Button>
             </div>
             <input ref={inputRef} className="hidden" type="file" onChange={handleImageChange} />
-            {!imageValid && <span className='text-sm text-red-600'>Invalid File</span>}
+            {!imageValid && <span className='text-sm text-red-600 dark:text-red-100 bg-red-100 dark:bg-red-900 px-2 rounded'>Invalid File!</span>}
         </Card>
     )
 }
-
-// add poll to polls
-// add doc id to users polls array

@@ -1,8 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, getAdditionalUserInfo, UserCredential, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove, updateDoc, query, collection, where, documentId } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { initialState, UserState } from './UserSlice';
 
 // --------- AUTH -----------
@@ -127,7 +128,10 @@ export const updateUserProfile = createAsyncThunk('user/updateProfile', async (n
       batch.set(doc(db, "usernames", newInfo.name), {uid: profile.uid});
     }
     const result = await batch.commit()
-      .then(() => {
+      .then(async () => {
+          if(profile.polls.length && (profile.name !== newInfo.name || profile.image !== newInfo.image)) {
+            return await updateUserPolls(profile.polls, newInfo, rejectWithValue);
+          }
           return newInfo;
       })
       .catch(error => {
@@ -258,7 +262,7 @@ async function addUserProfile(user: {uid: string, email: string, image?: string}
         })
         .catch(error => {
             console.log(error);
-            return rejectWithValue("Unable to create profile");
+            return rejectWithValue(error.message);
         });
     return result;  
 }
@@ -271,9 +275,27 @@ async function getUserProfile(uid: string, rejectWithValue: Function) {
     })
     .catch(error => {
         console.log(error);
-        return rejectWithValue("Unable to load profile");
+        return rejectWithValue(error.message);
     });
   return profileResult;
+}
+
+async function updateUserPolls(polls: Array<string>, newInfo: {name: string, bio: string, image: string}, rejectWithValue: Function) {
+  const batch = writeBatch(db);
+
+  polls.forEach((pollID) => {
+    batch.update(doc(db, "polls", pollID), { name: newInfo.name, profileImage: newInfo.image });
+  });
+
+  const result = await batch.commit()
+    .then(() => {
+        return newInfo;
+    })
+    .catch(error => {
+        console.log(error);
+        return rejectWithValue(error.message);
+    });
+  return result;
 }
 
 async function checkNameExists(name: string) {
