@@ -1,9 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, getAdditionalUserInfo, UserCredential, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { doc, setDoc, getDoc, writeBatch, arrayUnion, arrayRemove, updateDoc, query, collection, where, documentId } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword, getAdditionalUserInfo, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { doc, getDoc, writeBatch, arrayUnion, arrayRemove, updateDoc } from 'firebase/firestore';
 
-import { auth, db, storage } from "../firebase";
+import { auth, db } from "../firebase";
 import { initialState, UserState } from './UserSlice';
 
 // --------- AUTH -----------
@@ -28,7 +27,7 @@ export const userSignUp = createAsyncThunk('user/signup', async ({email, passwor
           uid: cred.user.uid as string,
           email: cred.user.email as string,
         };
-        return await addUserProfile(user, rejectWithValue);
+        return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
       })
       .catch((err) => {
         switch(err.code) {
@@ -97,10 +96,9 @@ export const googleSignIn = createAsyncThunk('user/googleSignIn', async (_, { re
     .then(async (cred) => {
       const user =  {
         uid: cred.user.uid as string,
-        email: cred.user.email as string
+        email: cred.user.email as string,
+        image: cred.user.photoURL as string
       };
-      console.log(cred.user.photoURL);
-      // TODO add image
       if(getAdditionalUserInfo(cred)?.isNewUser)
         return {profile: await addUserProfile(user, rejectWithValue), isNewUser: true};
       else
@@ -301,7 +299,6 @@ async function updateUserPolls(polls: Array<string>, newInfo: {name: string, bio
 async function checkNameExists(name: string) {
     const docRef = doc(db, "usernames", name);
     const docSnap = await getDoc(docRef)
-    console.log(docSnap);
     return docSnap.exists();
 }
 /*function createTempName(email: string) {
@@ -315,15 +312,16 @@ async function checkNameExists(name: string) {
 async function checkUserExists(uid: string) {
   const docRef = doc(db, "users", uid);
   const docSnap = await getDoc(docRef)
-  console.log(docSnap);
   return docSnap.exists();
 }
-
 async function createTempName(email: string) {
     let num = Math.floor(Math.random()*1000);
-    console.log(await checkNameExists('user' + num));
-    //while(checkNameTaken('user' + num))
-    //    num++;
-
+    let valid = false;
+    while(!valid) {
+      if(await checkNameExists('user' + num))
+        num++;
+      else
+        valid = true;
+    }
     return 'user' + num;
 }

@@ -36,7 +36,7 @@ export default function SignUp() {
 
         dispatch(userSignUp(info))
             .then((action) => {
-                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser) //quick fix to handle new user
+                if(action.meta.requestStatus === 'fulfilled')
                     navigate('/create');
             });
     }
@@ -46,7 +46,7 @@ export default function SignUp() {
         e.preventDefault();
         dispatch(googleSignIn())
             .then((action) => {
-                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser) //quick fix to handle new user
+                if(action.meta.requestStatus === 'fulfilled' && (action.payload as any).isNewUser)
                     navigate('/create');
             });
     }

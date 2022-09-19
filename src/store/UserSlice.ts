@@ -27,7 +27,7 @@ export const initialState: UserState = {
     name: 'guest',
     email: null,
     bio: null,
-    image: 'https://firebasestorage.googleapis.com/v0/b/luk3v-pollify.appspot.com/o/default.png?alt=media&token=6139a68d-387a-4401-be21-ebafe196613b',
+    image: 'https://firebasestorage.googleapis.com/v0/b/luk3v-yesorno.appspot.com/o/default.png?alt=media&token=68702d39-c667-45a4-b57a-3cad85f5b87d',
     followers: [],
     following: [],
     polls: [],
@@ -56,8 +56,8 @@ const userSlice = createSlice({
     .addCase(userSignUp.fulfilled, (state, action) => {
       state.status = 'success';
       state.error = undefined;
-      state.profile = action.payload;
-      state.isNewUser = true;
+      state.profile = action.payload.profile;
+      state.isNewUser = action.payload.isNewUser;
     })
     .addCase(userSignUp.rejected, (state, action) => {
       state.status = 'fail';
