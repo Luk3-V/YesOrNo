@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Timestamp } from "firebase/firestore";
 import { addPollVote, deletePoll, loadAllPolls, loadFollowingPolls } from "./PollsThunks";
 
 export interface PollState {

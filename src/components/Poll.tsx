@@ -117,11 +117,11 @@ export default function Poll(props: any) {
                         </PollResult>
                     </div> :
                     <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                        <Button onClick={() => handleVote('yes')} type="outline" className='grow text-emerald-700 dark:text-emerald-400 border-emerald-700 dark:border-emerald-400 bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900' 
+                        <Button onClick={() => handleVote('yes')} type="outline" className='grow text-emerald-700 dark:text-emerald-400 dark:border-neutral-400 bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900' 
                         icon={<IoMdThumbsUp />} disabled={loading}>
                             Yes
                         </Button>
-                        <Button onClick={() => handleVote('no')} type="outline" className='grow text-rose-700 dark:text-rose-400 border-rose-700 dark:border-rose-400 bg-rose-100 dark:bg-rose-950 hover:bg-rose-200 dark:hover:bg-rose-900' 
+                        <Button onClick={() => handleVote('no')} type="outline" className='grow text-rose-700 dark:text-rose-400 dark:border-neutral-400 bg-rose-100 dark:bg-rose-950 hover:bg-rose-200 dark:hover:bg-rose-900' 
                         icon={<IoMdThumbsDown />} disabled={loading}>
                             No
                         </Button>

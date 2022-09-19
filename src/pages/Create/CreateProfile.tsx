@@ -78,7 +78,7 @@ export default function CreatProfile() {
                         <label className="block text-gray-700 dark:text-neutral-300 text-sm font-bold mb-2" htmlFor="name">
                             Username
                         </label>
-                        <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} error={!nameValid} />
+                        <Input id="name" type="text" placeholder="user123" value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} error={!nameValid ? true : undefined} />
                         {!nameValid && <span className='text-sm text-red-600'>Invalid Username</span>}
                     </div>
                     <div className="mb-4">
@@ -95,7 +95,7 @@ export default function CreatProfile() {
                             <img src={image ? URL.createObjectURL(image) : profile.image} 
                                 alt="profile image" className="w-16 h-16 rounded-full mr-3"
                             />
-                            <Input id="image" type="file" rows="3" onChange={handleImageChange} error={!imageValid}/>
+                            <Input id="image" type="file" rows="3" onChange={handleImageChange} error={!imageValid ? true : undefined}/>
                         </div>
                         {!imageValid && <span className='text-sm text-red-600'>Invalid File</span>}
                     </div>

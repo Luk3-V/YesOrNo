@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addDoc, arrayRemove, collection, deleteDoc, doc, FieldValue, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from "firebase/firestore";
+import { arrayRemove, collection, doc, getDoc, getDocs, limit, orderBy, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import { PollState } from "./PollsSlice";
 
@@ -23,6 +23,7 @@ export const loadAllPolls = createAsyncThunk('polls/loadAllPolls', async (_, { r
 });
 
 export const loadFollowingPolls = createAsyncThunk('polls/loadFollowingPolls', async (followers: Array<string>, { rejectWithValue }) => {
+    console.log('loading');
     const pollsQuery = query(collection(db, "polls"), orderBy("createdAt", "desc"), where('uid', 'in', followers), limit(10)); // inefficient at large amount of posts to query
     const result = await getDocs(pollsQuery)
         .then((docs) => {
