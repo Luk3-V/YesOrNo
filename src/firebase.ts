@@ -4,21 +4,18 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB4oIXVD6QjlJyldh62v6JuYoVGMaIMQi4",
-    authDomain: "luk3v-pollify.firebaseapp.com",
-    projectId: "luk3v-pollify",
-    storageBucket: "luk3v-pollify.appspot.com",
-    messagingSenderId: "272957438934",
-    appId: "1:272957438934:web:cdc54ab6aba8f156ab8277"
+  apiKey: "AIzaSyDeiw2qf762s7gA8eE_o0_g5sW584-mvn4",
+  authDomain: "luk3v-yesorno.firebaseapp.com",
+  projectId: "luk3v-yesorno",
+  storageBucket: "luk3v-yesorno.appspot.com",
+  messagingSenderId: "906248188823",
+  appId: "1:906248188823:web:db45ce53fcda9e2a8b8ad2"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app)
 const storage = getStorage(app);
-/*onAuthStateChanged(auth, (user) => {
-    console.log('user state changed:', user);
-});*/
 
 export {auth, db, storage};
 export default app;

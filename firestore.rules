@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if true;
+      // create if uid matches
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      // update to private fields if uid matches
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid && 
+      	(request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'bio', 'image']));
+      // update to public fields if signed in
+      allow update: if isSignedIn() && 
+      	(request.resource.data.diff(resource.data).affectedKeys().hasOnly(['yesVotes', 'noVotes', 'followers', 'following']));
+      // delete if uid matches
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /usernames/{username} {
+      allow read;
+      // create if uid matches
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      // delete if uid matches
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /polls/{pollID} {
+    	allow read;
+      // create if uid matches 
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    	// update only the votes
+      allow update: if isSignedIn() && 
+      	(request.resource.data.diff(resource.data).affectedKeys().hasOnly(['yesVotes', 'noVotes']));
+      // update name & image if uid matches
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid &&
+      	(request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'profileImage', 'image']));
+      // delete if uid matches
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+    
+    // FUNCTIONS
+    
+    function isSignedIn() {
+      return request.auth.uid != null
+    }
+  }
+}
