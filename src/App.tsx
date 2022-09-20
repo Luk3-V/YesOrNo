@@ -76,10 +76,6 @@ export default function App() {
             <Route path='*' element={<>404 NOT FOUND</>} />
           </Routes>
         </Container>
-        <a className="w-full bg-blue-600 fixed bottom-0 text-center" href="https://github.com/Luk3-V" target="_blank" rel="noopener noreferrer">
-          <FaGithub className="text-lg inline-block mr-2" />
-          <span>Luk3-V</span>
-        </a>
       </>}
     </BrowserRouter>
   );
