@@ -1,46 +1,36 @@
-# Getting Started with Create React App
+# YesOrNo
+A React social media app that allow users to create & vote on polls. User accounts handled with Firebase Auth, state management with Redux, & responsive styling with Tailwind CSS.<br/>
+👉 [Live Demo](https://luk3v-yesorno.web.app/) 👈
+👉 [Case Study](https://luke-v.com/yesorno-case-study/) 👈
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 💡 The Idea
+I wanted to create a React project that would showcase my front-end knowledge by building something close to a real world product. I also wanted to learn Redux-Toolkit, Firebase Auth, & Tailwind CSS.
 
-## Available Scripts
+Instead of recreating an existing product, I decided to create my own. The idea was a React social media app where users can create profiles & post polls for people to vote on. To keep things simple I limited the options to "yes" or "no", hence the name "YesOrNo".
 
-In the project directory, you can run:
+## ✒️ Designing it
+After writing down the basic functionality. I drafted a quick design in Figma so I would have an idea of what I would need to build, how to structure my components, & how to style them.<br/>
+![Design1](https://luke-v.com/images/yesorno-design1.png)
+![Design2](https://luke-v.com/images/yesorno-design2.png)
 
-### `npm start`
+## 🔨 Developing it
+Planning: By far the most important tool was creating a person "Scrum Board", using Notion, for organizing & prioritizing which tasks to complete each day to move closer towards a minimum viable product.
+![Todo](https://luke-v.com/images/Screenshot_5.png)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**Firebase Auth:** The first biggest challenge was handling user authentication. I used Redux-Toolkit for the state management & realized I would need to use middleware functions in order to asynchronously call the Firebase API before updating the state, so I used Redux-Toolkit's createAsyncThunk.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+In a Firestore database, each authenticated user is created with a user doc with all their profile info, & a unique username doc linked to their uid. Their profile image is also hosted in the Firebase Cloud. A path routed to their profile page is created using their unique username.
+![userThunks](https://luke-v.com/images/yesorno-googleauth.png)
 
-### `npm test`
+**Debugging:** A somewhat silly roadblock was when debugging some issues with the React Router. I spent so much of time researching, making a bunch of tests, & even posting on Stack Overflow! I thought it was some obscure issue. But it ended up being just one line of code I forgot to change.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+A lesson I learned was the importance of consistent testing of all modules, to easily track any breaking changes. And not to tunnel vision when debugging, because most likely its just a simple logic error.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Poll Feeds:** In a separate Redux Slice, I set up handling for the poll feeds. However, some interaction with polls required updates to the user's profile database as well. One example is how voting adds the voter's uid in the poll doc & adds the pollID to the user doc, that way each user has all their votes stored.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+In a similar way there is also a following feed, which updates & sorts all following accounts most recent polls. This requires the use of Firebase's query function.
+![pollThunks](https://luke-v.com/images/yesorno-followingfeed.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+‍**Styling:** Every good web app NEEDS a dark mode! Thanks to Tailwind-CSS I was able easily able to, as well as polish up the design more & make it mobile-first responsive.
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
